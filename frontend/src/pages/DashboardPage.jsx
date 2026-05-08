@@ -4,7 +4,11 @@ import API from "../api/axios";
 
 import { useAuth } from "../context/AuthContext";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  Link
+} from "react-router-dom";
+
 import toast from "react-hot-toast";
 
 function DashboardPage() {
@@ -20,6 +24,7 @@ function DashboardPage() {
 
   const fetchRoadmaps = async () => {
     try {
+
       const response = await API.get(
         "/roadmaps/"
       );
@@ -28,6 +33,10 @@ function DashboardPage() {
 
     } catch (error) {
       console.error(error);
+
+      toast.error(
+        "Failed to fetch roadmaps"
+      );
     }
   };
 
@@ -45,6 +54,7 @@ function DashboardPage() {
     if (!goal.trim()) return;
 
     try {
+
       setLoading(true);
 
       await API.post(
@@ -54,6 +64,10 @@ function DashboardPage() {
         }
       );
 
+      toast.success(
+        "Roadmap generated"
+      );
+
       setGoal("");
 
       await fetchRoadmaps();
@@ -61,8 +75,9 @@ function DashboardPage() {
     } catch (error) {
       console.error(error);
 
-      toast.error("Generation failed");
-      toast.success("Roadmap generated");
+      toast.error(
+        "Generation failed"
+      );
 
     } finally {
       setLoading(false);
@@ -70,32 +85,33 @@ function DashboardPage() {
   };
 
   const handleComplete = async (
-  milestoneId
-) => {
-  try {
+    milestoneId
+  ) => {
+    try {
 
-    await API.put(
-      `/roadmaps/milestones/${milestoneId}/complete`
-    );
+      await API.put(
+        `/roadmaps/milestones/${milestoneId}/complete`
+      );
 
-    await fetchRoadmaps();
+      toast.success(
+        "Milestone completed"
+      );
 
-  } catch (error) {
-    console.error(error);
+      await fetchRoadmaps();
 
-    toast.error(
-      "Failed to update milestone"
-    );
-    toast.success(
-  "Milestone completed"
-);
-  }
-};
+    } catch (error) {
+      console.error(error);
+
+      toast.error(
+        "Failed to update milestone"
+      );
+    }
+  };
 
   return (
-    <div className="min-h-screen p-10">
+    <div className="min-h-screen p-6 md:p-10">
 
-      <div className="flex justify-between items-center mb-10">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
 
         <h1 className="text-4xl font-bold">
           PathForge Dashboard
@@ -116,7 +132,7 @@ function DashboardPage() {
           Generate New Roadmap
         </h2>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
 
           <input
             type="text"
@@ -131,7 +147,7 @@ function DashboardPage() {
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="bg-blue-600 px-6 rounded"
+            className="bg-blue-600 px-6 py-3 rounded"
           >
             {
               loading
@@ -182,7 +198,9 @@ function DashboardPage() {
 
                   <div className="flex justify-between mb-1">
 
-                    <span>Progress</span>
+                    <span>
+                      Progress
+                    </span>
 
                     <span>
                       {progress}%
@@ -203,51 +221,68 @@ function DashboardPage() {
 
                 </div>
 
+                <Link
+                  to={`/roadmaps/${roadmap.id}`}
+                  className="inline-block mb-4 bg-blue-600 px-4 py-2 rounded"
+                >
+                  View Roadmap
+                </Link>
+
                 <div className="space-y-3">
 
                   {
-                    roadmap.milestones.map(
-                      (milestone) => (
-                        <div
-                          key={milestone.id}
-                          className="bg-slate-700 p-3 rounded"
-                        >
+                    roadmap.milestones
+                      .slice(0, 3)
+                      .map(
+                        (milestone) => (
+                          <div
+                            key={milestone.id}
+                            className="bg-slate-700 p-3 rounded"
+                          >
 
-                          <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center">
 
-                        <h3 className="font-bold">
-                            {milestone.title}
-                        </h3>
+                              <h3 className="font-bold">
+                                {milestone.title}
+                              </h3>
 
-                        {
-                            milestone.completed ? (
-                            <span>
-                                ✅
-                            </span>
-                            ) : (
-                            <button
-                                onClick={() =>
-                                handleComplete(
-                                    milestone.id
+                              {
+                                milestone.completed ? (
+                                  <span>
+                                    ✅
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      handleComplete(
+                                        milestone.id
+                                      )
+                                    }
+                                    className="bg-green-600 px-3 py-1 rounded text-sm"
+                                  >
+                                    Complete
+                                  </button>
                                 )
-                                }
-                                className="bg-green-600 px-3 py-1 rounded text-sm"
-                            >
-                                Complete
-                            </button>
-                            )
-                        }
+                              }
 
-                        </div>
+                            </div>
 
-                          <p className="text-sm text-slate-300 mt-1">
-                            {
-                              milestone.description
-                            }
-                          </p>
+                            <p className="text-sm text-slate-300 mt-1">
+                              {
+                                milestone.description
+                              }
+                            </p>
 
-                        </div>
+                          </div>
+                        )
                       )
+                  }
+
+                  {
+                    roadmap.milestones.length > 3 && (
+                      <p className="text-slate-400 mt-3">
+                        + More milestones inside roadmap
+                      </p>
                     )
                   }
 
