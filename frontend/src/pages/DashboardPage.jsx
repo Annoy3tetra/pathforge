@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
-import { Sparkles, ArrowRight, CheckCircle2, Circle, Compass, BrainCircuit, ArrowUp, RefreshCw, AlertCircle } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, Circle, Compass, BrainCircuit, ArrowUp, RefreshCw, AlertCircle, Trash2 } from "lucide-react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/Card";
@@ -96,6 +96,18 @@ function DashboardPage() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to update milestone");
+    }
+  };
+
+  const handleDelete = async (roadmapId) => {
+    if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
+    try {
+      await API.delete(`/roadmaps/${roadmapId}`);
+      toast.success("Roadmap deleted");
+      await fetchRoadmaps();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete roadmap");
     }
   };
 
@@ -310,12 +322,21 @@ function DashboardPage() {
                 </CardContent>
                 
                 <CardFooter className="pt-0 mt-auto">
-                  <Link to={`/roadmaps/${roadmap.id}`} className="w-full">
-                    <Button variant="secondary" className="w-full group-hover:bg-slate-700">
-                      View Full Path
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <div className="flex gap-2 w-full">
+                    <Link to={`/roadmaps/${roadmap.id}`} className="flex-1">
+                      <Button variant="secondary" className="w-full group-hover:bg-slate-700">
+                        View Full Path
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(roadmap.id)}
+                      className="p-2.5 rounded-md border border-slate-700 text-slate-500 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors"
+                      title="Delete roadmap"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </CardFooter>
               </Card>
             );

@@ -128,6 +128,30 @@ def complete_milestone(
     }
 
 
+@router.delete("/{roadmap_id}")
+def delete_roadmap(
+    roadmap_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    db.delete(roadmap)
+    db.commit()
+
+    return {
+        "message": "Roadmap deleted successfully"
+    }
+
 @router.get("/{roadmap_id}/dashboard")
 def roadmap_dashboard(
     roadmap_id: int,

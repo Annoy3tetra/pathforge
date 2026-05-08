@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import {
   ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp,
-  Target, TrendingUp, Calendar, Zap, AlertTriangle, CalendarCheck
+  Target, TrendingUp, Calendar, Zap, AlertTriangle, CalendarCheck, Trash2
 } from "lucide-react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
@@ -16,6 +16,7 @@ import { MilestoneChart } from "../components/ui/MilestoneChart";
 
 function RoadmapDetailPage() {
   const { roadmapId } = useParams();
+  const navigate = useNavigate();
   const [roadmap, setRoadmap] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -149,12 +150,33 @@ function RoadmapDetailPage() {
           Back to Dashboard
         </Link>
 
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100 mb-4 leading-tight">
-          {roadmap.title}
-        </h1>
-        <p className="text-lg md:text-xl text-slate-400 max-w-3xl leading-relaxed">
-          {roadmap.description}
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100 mb-4 leading-tight">
+              {roadmap.title}
+            </h1>
+            <p className="text-lg md:text-xl text-slate-400 max-w-3xl leading-relaxed">
+              {roadmap.description}
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
+              try {
+                await API.delete(`/roadmaps/${roadmapId}`);
+                toast.success("Roadmap deleted");
+                navigate("/dashboard");
+              } catch (error) {
+                console.error(error);
+                toast.error("Failed to delete roadmap");
+              }
+            }}
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+        </div>
       </div>
 
       {/* Analytics Grid — 6 cards in 2 rows of 3 on desktop */}
