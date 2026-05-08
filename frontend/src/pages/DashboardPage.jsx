@@ -67,6 +67,26 @@ function DashboardPage() {
     }
   };
 
+  const handleComplete = async (
+  milestoneId
+) => {
+  try {
+
+    await API.put(
+      `/roadmaps/milestones/${milestoneId}/complete`
+    );
+
+    await fetchRoadmaps();
+
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Failed to update milestone"
+    );
+  }
+};
+
   return (
     <div className="min-h-screen p-10">
 
@@ -188,21 +208,32 @@ function DashboardPage() {
                           className="bg-slate-700 p-3 rounded"
                         >
 
-                          <div className="flex justify-between">
+                          <div className="flex justify-between items-center">
 
-                            <h3 className="font-bold">
-                              {milestone.title}
-                            </h3>
+                        <h3 className="font-bold">
+                            {milestone.title}
+                        </h3>
 
+                        {
+                            milestone.completed ? (
                             <span>
-                              {
-                                milestone.completed
-                                  ? "✅"
-                                  : "❌"
-                              }
+                                ✅
                             </span>
+                            ) : (
+                            <button
+                                onClick={() =>
+                                handleComplete(
+                                    milestone.id
+                                )
+                                }
+                                className="bg-green-600 px-3 py-1 rounded text-sm"
+                            >
+                                Complete
+                            </button>
+                            )
+                        }
 
-                          </div>
+                        </div>
 
                           <p className="text-sm text-slate-300 mt-1">
                             {
