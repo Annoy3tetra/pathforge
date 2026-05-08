@@ -151,9 +151,9 @@ function DashboardPage() {
           >
             {
               loading
-                ? "Generating..."
-                : "Generate"
-            }
+                ? "Generating AI Roadmap..."
+                : "Generate Roadmap"
+            }   
           </button>
 
         </div>
@@ -161,6 +161,21 @@ function DashboardPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
+        {
+  roadmaps.length === 0 && (
+    <div className="bg-slate-800 p-10 rounded-xl text-center col-span-full">
+
+      <h2 className="text-2xl font-bold mb-3">
+        No Roadmaps Yet
+      </h2>
+
+      <p className="text-slate-300">
+        Generate your first roadmap to begin your learning journey.
+      </p>
+
+    </div>
+  )
+}
 
         {
           roadmaps.map((roadmap) => {

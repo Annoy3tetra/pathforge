@@ -79,4 +79,26 @@ def generate_roadmap(goal: str):
 
     cleaned_json = extract_json(content)
 
-    return json.loads(cleaned_json)
+    parsed_data = json.loads(cleaned_json)
+
+    required_fields = [
+        "title",
+        "description",
+        "milestones"
+    ]
+
+    for field in required_fields:
+        if field not in parsed_data:
+            raise Exception(
+                f"Missing field: {field}"
+            )
+
+    if not isinstance(
+        parsed_data["milestones"],
+        list
+    ):
+        raise Exception(
+            "Milestones must be a list"
+        )
+
+    return parsed_data
