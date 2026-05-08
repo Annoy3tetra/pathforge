@@ -10,6 +10,8 @@ import {
   useAuth
 } from "../context/AuthContext";
 
+import toast from "react-hot-toast";
+
 function LoginPage() {
   const navigate = useNavigate();
 
@@ -58,13 +60,13 @@ function LoginPage() {
       login(
         response.data.access_token
       );
-
+      toast.success("Login successful");
       navigate("/dashboard");
 
     } catch (error) {
       console.error(error);
 
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
     }
   };
 

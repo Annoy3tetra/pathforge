@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -27,14 +28,14 @@ function RegisterPage() {
         formData
       );
 
-      alert("Registration successful");
+      toast.success("Registration successful");
 
       navigate("/login");
 
     } catch (error) {
       console.error(error);
 
-      alert("Registration failed");
+      toast.error("Registration failed");
     }
   };
 

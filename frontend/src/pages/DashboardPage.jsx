@@ -5,6 +5,7 @@ import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function DashboardPage() {
   const { logout } = useAuth();
@@ -60,7 +61,8 @@ function DashboardPage() {
     } catch (error) {
       console.error(error);
 
-      alert("Generation failed");
+      toast.error("Generation failed");
+      toast.success("Roadmap generated");
 
     } finally {
       setLoading(false);
@@ -81,9 +83,12 @@ function DashboardPage() {
   } catch (error) {
     console.error(error);
 
-    alert(
+    toast.error(
       "Failed to update milestone"
     );
+    toast.success(
+  "Milestone completed"
+);
   }
 };
 
