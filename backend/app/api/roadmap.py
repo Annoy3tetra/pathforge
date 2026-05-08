@@ -26,6 +26,9 @@ from app.services.roadmap_service import (
     roadmap_status
 )
 
+from app.schemas.roadmap import GoalInput
+from app.services.ai_service import generate_roadmap
+
 router = APIRouter(
     prefix="/roadmaps",
     tags=["Roadmaps"]
@@ -153,4 +156,41 @@ def roadmap_dashboard(
         "status": status,
         "completed_milestones": completed_count,
         "total_milestones": len(roadmap.milestones)
+    }
+
+@router.post("/generate")
+def generate_ai_roadmap(
+    goal_input: GoalInput,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap_data = generate_roadmap(
+        goal_input.goal
+    )
+
+    new_roadmap = Roadmap(
+        title=roadmap_data["title"],
+        description=roadmap_data["description"],
+        owner_id=current_user.id
+    )
+
+    db.add(new_roadmap)
+    db.commit()
+    db.refresh(new_roadmap)
+
+    for milestone in roadmap_data["milestones"]:
+        new_milestone = Milestone(
+            title=milestone["title"],
+            description=milestone["description"],
+            estimated_days=milestone["estimated_days"],
+            roadmap_id=new_roadmap.id
+        )
+
+        db.add(new_milestone)
+
+    db.commit()
+
+    return {
+        "message": "AI roadmap generated",
+        "roadmap_id": new_roadmap.id
     }
