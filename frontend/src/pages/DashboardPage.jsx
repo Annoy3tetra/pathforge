@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { ProgressBar } from "../components/ui/ProgressBar";
+import { Skeleton } from "../components/ui/Skeleton";
 
 function DashboardPage() {
   const [roadmaps, setRoadmaps] = useState([]);
@@ -62,8 +63,33 @@ function DashboardPage() {
   if (initialLoad) {
     return (
       <DashboardLayout title="Dashboard">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        {/* Skeleton Generate Section */}
+        <Skeleton className="h-40 w-full mb-8 rounded-xl" />
+
+        <div className="mb-6 flex items-center justify-between">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+
+        {/* Skeleton Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="flex flex-col h-72">
+              <CardHeader className="pb-4">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6 mt-1" />
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <Skeleton className="h-2.5 w-full rounded-full" />
+                <div className="space-y-2 mt-6">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </DashboardLayout>
     );
@@ -130,7 +156,7 @@ function DashboardPage() {
             const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
 
             return (
-              <Card key={roadmap.id} className="flex flex-col hover:border-indigo-500/30 transition-colors group">
+              <Card key={roadmap.id} className="flex flex-col transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/10 hover:border-indigo-500/50 group bg-slate-900/80">
                 <CardHeader className="pb-4">
                   <CardTitle className="line-clamp-1" title={roadmap.title}>
                     {roadmap.title}
