@@ -1,33 +1,191 @@
 import requests
 import json
 import re
+import logging
+import time
 
 from app.core.config import settings
 
+logger = logging.getLogger("pathforge.ai")
+
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
+# Configuration
+MAX_RETRIES = 3
+REQUEST_TIMEOUT = 30  # seconds
+RETRY_DELAY = 2  # seconds between retries
 
-def extract_json(text):
-    match = re.search(
-        r"\{.*\}",
-        text,
-        re.DOTALL
+
+class AIGenerationError(Exception):
+    """Raised when AI generation fails after all retries."""
+
+    def __init__(self, message: str, detail: str = None):
+        self.message = message
+        self.detail = detail
+        super().__init__(self.message)
+
+
+def extract_json(text: str) -> str:
+    """
+    Extract the first valid JSON object from a text response.
+    Tries multiple strategies: direct parse, regex extraction,
+    and markdown code-fence stripping.
+    """
+    # Strategy 1: Try parsing the entire text directly
+    stripped = text.strip()
+    if stripped.startswith("{"):
+        try:
+            json.loads(stripped)
+            return stripped
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 2: Strip markdown code fences
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if fenced:
+        try:
+            json.loads(fenced.group(1))
+            return fenced.group(1)
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 3: Greedy regex for outermost braces
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if match:
+        return match.group(0)
+
+    raise AIGenerationError(
+        "No valid JSON found in AI response",
+        detail=f"Raw response (first 500 chars): {text[:500]}"
     )
 
-    if not match:
-        raise Exception(
-            "No valid JSON found in AI response"
+
+def validate_roadmap(data: dict) -> dict:
+    """
+    Validate and sanitize the parsed roadmap data.
+    Raises AIGenerationError for structurally invalid responses.
+    """
+    # Required top-level fields
+    if not isinstance(data, dict):
+        raise AIGenerationError("AI response is not a JSON object")
+
+    if "title" not in data or not isinstance(data["title"], str) or not data["title"].strip():
+        raise AIGenerationError("Missing or empty 'title' in AI response")
+
+    if "milestones" not in data or not isinstance(data["milestones"], list):
+        raise AIGenerationError("Missing or invalid 'milestones' in AI response")
+
+    if len(data["milestones"]) == 0:
+        raise AIGenerationError("AI returned an empty milestones list")
+
+    # Set description fallback
+    if "description" not in data or not data.get("description"):
+        data["description"] = f"AI-generated roadmap for: {data['title']}"
+
+    # Validate each milestone
+    cleaned_milestones = []
+    for idx, m in enumerate(data["milestones"]):
+        if not isinstance(m, dict):
+            logger.warning(f"Milestone {idx} is not a dict, skipping: {m}")
+            continue
+
+        if not m.get("title") or not isinstance(m.get("title"), str):
+            logger.warning(f"Milestone {idx} missing title, skipping")
+            continue
+
+        # Sanitize estimated_days
+        est_days = m.get("estimated_days")
+        if est_days is None or not isinstance(est_days, (int, float)):
+            est_days = 7  # default fallback
+            logger.info(f"Milestone {idx} missing estimated_days, defaulting to 7")
+
+        est_days = max(1, int(est_days))  # ensure positive integer
+
+        cleaned_milestones.append({
+            "title": m["title"].strip(),
+            "description": (m.get("description") or "").strip(),
+            "estimated_days": est_days,
+        })
+
+    if len(cleaned_milestones) == 0:
+        raise AIGenerationError(
+            "All milestones were invalid after validation"
         )
 
-    return match.group(0)
+    data["milestones"] = cleaned_milestones
+    data["title"] = data["title"].strip()
+    data["description"] = data["description"].strip()
+
+    return data
 
 
-def generate_roadmap(goal: str):
+def _call_groq(prompt: str) -> str:
+    """
+    Make a single call to the Groq API.
+    Returns the content string from the response.
+    Raises AIGenerationError on failures.
+    """
+    headers = {
+        "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.5,
+    }
+
+    try:
+        response = requests.post(
+            GROQ_URL,
+            headers=headers,
+            json=payload,
+            timeout=REQUEST_TIMEOUT,
+        )
+    except requests.exceptions.Timeout:
+        raise AIGenerationError(
+            "AI service timed out",
+            detail=f"Request exceeded {REQUEST_TIMEOUT}s timeout"
+        )
+    except requests.exceptions.ConnectionError:
+        raise AIGenerationError(
+            "Could not connect to AI service",
+            detail="Network connection error to Groq API"
+        )
+
+    if response.status_code != 200:
+        raise AIGenerationError(
+            "AI service returned an error",
+            detail=f"HTTP {response.status_code}: {response.text[:300]}"
+        )
+
+    data = response.json()
+
+    if "choices" not in data or len(data["choices"]) == 0:
+        raise AIGenerationError(
+            "AI returned an unexpected response format",
+            detail=f"Response keys: {list(data.keys())}"
+        )
+
+    content = data["choices"][0]["message"]["content"]
+
+    if not content or not content.strip():
+        raise AIGenerationError("AI returned an empty response")
+
+    return content
+
+
+def generate_roadmap(goal: str) -> dict:
+    """
+    Generate a learning roadmap for the given goal.
+    Includes retry logic, response validation, and structured error handling.
+    """
     prompt = f"""
     Create a beginner-friendly learning roadmap for:
     {goal}
 
-    Return ONLY valid JSON.
+    Return ONLY valid JSON. No explanations, no markdown.
 
     Format:
     {{
@@ -43,62 +201,49 @@ def generate_roadmap(goal: str):
     }}
     """
 
-    headers = {
-        "Authorization": f"Bearer {settings.GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
+    last_error = None
 
-    payload = {
-        "model": "llama-3.1-8b-instant",
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "temperature": 0.5
-    }
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            logger.info(f"AI generation attempt {attempt}/{MAX_RETRIES} for goal: '{goal[:80]}'")
 
-    response = requests.post(
-        GROQ_URL,
-        headers=headers,
-        json=payload
-    )
+            content = _call_groq(prompt)
 
-    data = response.json()
+            logger.debug(f"AI raw response (attempt {attempt}): {content[:300]}")
 
-    if "choices" not in data:
-        raise Exception(
-            f"Groq API Error: {data}"
-        )
+            cleaned_json = extract_json(content)
+            parsed_data = json.loads(cleaned_json)
+            validated = validate_roadmap(parsed_data)
 
-    content = data["choices"][0]["message"]["content"]
-
-    print("AI RESPONSE:")
-    print(content)
-
-    cleaned_json = extract_json(content)
-
-    parsed_data = json.loads(cleaned_json)
-
-    required_fields = [
-        "title",
-        "description",
-        "milestones"
-    ]
-
-    for field in required_fields:
-        if field not in parsed_data:
-            raise Exception(
-                f"Missing field: {field}"
+            logger.info(
+                f"AI generation succeeded on attempt {attempt}: "
+                f"'{validated['title']}' with {len(validated['milestones'])} milestones"
             )
+            return validated
 
-    if not isinstance(
-        parsed_data["milestones"],
-        list
-    ):
-        raise Exception(
-            "Milestones must be a list"
-        )
+        except (json.JSONDecodeError, AIGenerationError) as e:
+            last_error = e
+            logger.warning(
+                f"AI generation attempt {attempt} failed: {e}"
+            )
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY)
+            continue
 
-    return parsed_data
+        except Exception as e:
+            last_error = e
+            logger.error(
+                f"Unexpected error on AI generation attempt {attempt}: {e}",
+                exc_info=True,
+            )
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY)
+            continue
+
+    # All retries exhausted
+    error_msg = f"AI generation failed after {MAX_RETRIES} attempts"
+    logger.error(f"{error_msg}. Last error: {last_error}")
+    raise AIGenerationError(
+        error_msg,
+        detail=str(last_error) if last_error else None
+    )

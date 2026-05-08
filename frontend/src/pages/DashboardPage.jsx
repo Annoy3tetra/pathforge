@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
-import { Sparkles, ArrowRight, CheckCircle2, Circle } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, Circle, Compass, BrainCircuit, ArrowUp, RefreshCw, AlertCircle } from "lucide-react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/Card";
@@ -10,12 +10,35 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Skeleton } from "../components/ui/Skeleton";
+import { RoadmapFeedbackBadge } from "../components/ui/RoadmapFeedbackBadge";
+
+// AI Loading Phrases
+const AI_PHRASES = [
+  "Analyzing your goal...",
+  "Consulting knowledge base...",
+  "Structuring learning path...",
+  "Drafting key milestones...",
+  "Estimating completion times...",
+  "Finalizing your roadmap..."
+];
+
+const SUGGESTED_GOALS = [
+  "Machine Learning",
+  "Web Development",
+  "Data Structures & Algorithms",
+  "DevOps",
+  "Mobile App Development"
+];
 
 function DashboardPage() {
   const [roadmaps, setRoadmaps] = useState([]);
   const [goal, setGoal] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  
+  // AI Generation UX State
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [generationError, setGenerationError] = useState(null);
 
   const fetchRoadmaps = async () => {
     try {
@@ -33,17 +56,33 @@ function DashboardPage() {
     fetchRoadmaps();
   }, []);
 
+  // Handle AI Phrase Rotation
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setPhraseIndex(0);
+      interval = setInterval(() => {
+        setPhraseIndex((prev) => (prev + 1) % AI_PHRASES.length);
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const handleGenerate = async () => {
     if (!goal.trim()) return;
     try {
       setLoading(true);
+      setGenerationError(null);
       await API.post("/roadmaps/generate", { goal });
       toast.success("Roadmap generated successfully!");
       setGoal("");
       await fetchRoadmaps();
     } catch (error) {
       console.error(error);
-      toast.error("Generation failed. Please try again.");
+      const detail = error.response?.data?.detail;
+      const errorMsg = typeof detail === "object" ? detail.error : "Generation failed. Please try again.";
+      setGenerationError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -64,7 +103,7 @@ function DashboardPage() {
     return (
       <DashboardLayout title="Dashboard">
         {/* Skeleton Generate Section */}
-        <Skeleton className="h-40 w-full mb-8 rounded-xl" />
+        <Skeleton className="h-48 w-full mb-8 rounded-xl" />
 
         <div className="mb-6 flex items-center justify-between">
           <Skeleton className="h-7 w-48" />
@@ -98,35 +137,82 @@ function DashboardPage() {
   return (
     <DashboardLayout title="Dashboard">
       {/* Generate Section */}
-      <Card className="mb-8 bg-gradient-to-br from-slate-900 to-indigo-950/20 border-indigo-500/20">
+      <Card className={`mb-8 overflow-hidden transition-all duration-500 ${
+        loading ? "border-indigo-500/50 shadow-[0_0_30px_-5px_rgba(99,102,241,0.2)]" : generationError ? "border-rose-500/30 bg-gradient-to-br from-slate-900 to-rose-950/10" : "bg-gradient-to-br from-slate-900 to-indigo-950/20 border-indigo-500/20"
+      }`}>
+        <div className={`h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 transition-all duration-1000 ${loading ? "opacity-100 bg-[length:200%_100%] animate-[gradient_2s_linear_infinite]" : "opacity-0"}`} />
+        
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-indigo-400" />
-            Generate New Roadmap
+            <Sparkles className={`h-5 w-5 ${loading ? "text-indigo-400 animate-pulse" : "text-indigo-400"}`} />
+            {loading ? "AI is forging your path..." : "Generate New Roadmap"}
           </CardTitle>
           <CardDescription>
-            Tell our AI what you want to learn, and we'll create a step-by-step path for you.
+            {loading ? "Please wait while our AI analyzes your goal and creates a customized learning journey." : "Tell our AI what you want to learn, and we'll create a step-by-step path for you."}
           </CardDescription>
         </CardHeader>
+        
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Input
-              type="text"
-              placeholder="e.g., Become a full-stack web developer..."
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              className="flex-1 bg-slate-950/50"
-              onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-            />
-            <Button
-              onClick={handleGenerate}
-              isLoading={loading}
-              disabled={!goal.trim()}
-              className="sm:w-auto w-full"
-            >
-              Generate Path
-            </Button>
-          </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-6 bg-slate-950/50 rounded-lg border border-slate-800">
+              <BrainCircuit className="h-10 w-10 text-indigo-400 animate-pulse mb-4" />
+              <p className="text-sm font-medium text-indigo-300 animate-pulse transition-all duration-300">
+                {AI_PHRASES[phraseIndex]}
+              </p>
+              <div className="w-48 h-1.5 bg-slate-800 rounded-full mt-4 overflow-hidden">
+                <div className="h-full bg-indigo-500 animate-[pulse_1s_ease-in-out_infinite]" style={{ width: '100%', transformOrigin: 'left', animationName: 'progress' }} />
+              </div>
+            </div>
+          ) : generationError ? (
+            <div className="flex flex-col items-center justify-center py-6 bg-rose-950/20 rounded-lg border border-rose-500/20">
+              <AlertCircle className="h-10 w-10 text-rose-400 mb-3" />
+              <p className="text-sm font-semibold text-rose-300 mb-1">Generation Failed</p>
+              <p className="text-xs text-slate-400 mb-4 max-w-md text-center">{generationError}</p>
+              <Button
+                onClick={() => { setGenerationError(null); handleGenerate(); }}
+                className="bg-rose-600 hover:bg-rose-500"
+                disabled={!goal.trim()}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry Generation
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  type="text"
+                  placeholder="e.g., I want to become a full-stack developer in 6 months..."
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  className="flex-1 bg-slate-950/50"
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                  disabled={loading}
+                />
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!goal.trim() || loading}
+                  className="sm:w-auto w-full group"
+                >
+                  <Sparkles className="mr-2 h-4 w-4 group-hover:animate-spin" />
+                  Generate Path
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium text-slate-500">Suggestions:</span>
+                {SUGGESTED_GOALS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => setGoal(suggestion)}
+                    className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded-full transition-colors border border-slate-700"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -139,14 +225,23 @@ function DashboardPage() {
       </div>
 
       {roadmaps.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center py-16 px-4 text-center border-dashed">
-          <div className="h-16 w-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4 text-slate-400">
-            <Compass className="h-8 w-8" />
+        <Card className="flex flex-col items-center justify-center py-20 px-4 text-center border-dashed border-2 border-slate-700 bg-slate-900/30 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-900/0 to-slate-900/0"></div>
+          
+          <div className="relative flex flex-col items-center">
+            <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
+              <Compass className="h-10 w-10 text-indigo-400" />
+            </div>
+            <CardTitle className="mb-3 text-2xl">Your journey begins here</CardTitle>
+            <CardDescription className="max-w-md text-base mb-8">
+              You haven't forged any learning paths yet. Let our AI guide you by typing what you want to learn above.
+            </CardDescription>
+            
+            <div className="flex items-center text-indigo-400 animate-bounce">
+              <ArrowUp className="mr-2 h-5 w-5" />
+              <span className="font-medium">Try a suggestion above!</span>
+            </div>
           </div>
-          <CardTitle className="mb-2">No roadmaps yet</CardTitle>
-          <CardDescription className="max-w-md">
-            You haven't generated any learning paths. Use the form above to tell us what you want to learn, and we'll map it out.
-          </CardDescription>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -158,9 +253,12 @@ function DashboardPage() {
             return (
               <Card key={roadmap.id} className="flex flex-col transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/10 hover:border-indigo-500/50 group bg-slate-900/80">
                 <CardHeader className="pb-4">
-                  <CardTitle className="line-clamp-1" title={roadmap.title}>
-                    {roadmap.title}
-                  </CardTitle>
+                  <div className="flex justify-between items-start gap-2 mb-1">
+                    <CardTitle className="line-clamp-1" title={roadmap.title}>
+                      {roadmap.title}
+                    </CardTitle>
+                    <RoadmapFeedbackBadge roadmapId={roadmap.id} />
+                  </div>
                   <CardDescription className="line-clamp-2 min-h-[40px]">
                     {roadmap.description || "No description provided."}
                   </CardDescription>
@@ -227,8 +325,5 @@ function DashboardPage() {
     </DashboardLayout>
   );
 }
-
-// Ensure Compass is available for the empty state
-import { Compass } from "lucide-react";
 
 export default DashboardPage;

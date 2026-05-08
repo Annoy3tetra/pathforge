@@ -3,7 +3,8 @@ from sqlalchemy import (
     Integer,
     String,
     Boolean,
-    ForeignKey
+    ForeignKey,
+    DateTime
 )
 from sqlalchemy.orm import relationship
 
@@ -24,6 +25,11 @@ class Milestone(Base):
     completed = Column(
         Boolean,
         default=False
+    )
+
+    completed_at = Column(
+        DateTime(timezone=True),
+        nullable=True
     )
 
     roadmap_id = Column(

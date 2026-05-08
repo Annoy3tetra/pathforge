@@ -5,6 +5,7 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
 from app.db.session import get_db
 
@@ -27,7 +28,9 @@ from app.services.roadmap_service import (
 )
 
 from app.schemas.roadmap import GoalInput
-from app.services.ai_service import generate_roadmap
+from app.services.ai_service import generate_roadmap, AIGenerationError
+from app.services.feedback_service import evaluate_pace
+from app.services.analytics_service import compute_analytics
 
 router = APIRouter(
     prefix="/roadmaps",
@@ -110,6 +113,7 @@ def complete_milestone(
         )
 
     milestone.completed = True
+    milestone.completed_at = func.now()
 
     db.commit()
 
@@ -158,15 +162,76 @@ def roadmap_dashboard(
         "total_milestones": len(roadmap.milestones)
     }
 
+@router.get("/{roadmap_id}/feedback")
+def get_roadmap_feedback(
+    roadmap_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    feedback = evaluate_pace(roadmap)
+
+    return feedback
+
+@router.get("/{roadmap_id}/analytics")
+def get_roadmap_analytics(
+    roadmap_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    analytics = compute_analytics(roadmap)
+
+    return analytics
+
 @router.post("/generate")
 def generate_ai_roadmap(
     goal_input: GoalInput,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    roadmap_data = generate_roadmap(
-        goal_input.goal
-    )
+    try:
+        roadmap_data = generate_roadmap(
+            goal_input.goal
+        )
+    except AIGenerationError as e:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": e.message,
+                "detail": e.detail,
+                "retryable": True
+            }
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "An unexpected error occurred during generation",
+                "detail": str(e),
+                "retryable": True
+            }
+        )
 
     new_roadmap = Roadmap(
         title=roadmap_data["title"],
