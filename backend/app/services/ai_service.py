@@ -1,14 +1,30 @@
 import requests
 import json
+import re
 
 from app.core.config import settings
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
+def extract_json(text):
+    match = re.search(
+        r"\{.*\}",
+        text,
+        re.DOTALL
+    )
+
+    if not match:
+        raise Exception(
+            "No valid JSON found in AI response"
+        )
+
+    return match.group(0)
+
+
 def generate_roadmap(goal: str):
     prompt = f"""
-    Create a learning roadmap for:
+    Create a beginner-friendly learning roadmap for:
     {goal}
 
     Return ONLY valid JSON.
@@ -33,14 +49,14 @@ def generate_roadmap(goal: str):
     }
 
     payload = {
-    "model": "llama-3.1-8b-instant",
+        "model": "llama-3.1-8b-instant",
         "messages": [
             {
                 "role": "user",
                 "content": prompt
             }
         ],
-        "temperature": 0.7
+        "temperature": 0.5
     }
 
     response = requests.post(
@@ -48,9 +64,6 @@ def generate_roadmap(goal: str):
         headers=headers,
         json=payload
     )
-
-    print("STATUS CODE:", response.status_code)
-    print("RAW RESPONSE:", response.text)
 
     data = response.json()
 
@@ -61,4 +74,9 @@ def generate_roadmap(goal: str):
 
     content = data["choices"][0]["message"]["content"]
 
-    return json.loads(content)
+    print("AI RESPONSE:")
+    print(content)
+
+    cleaned_json = extract_json(content)
+
+    return json.loads(cleaned_json)
