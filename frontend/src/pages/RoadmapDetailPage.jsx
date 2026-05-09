@@ -4,7 +4,8 @@ import API from "../api/axios";
 import toast from "react-hot-toast";
 import {
   ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp,
-  Target, TrendingUp, Calendar, Zap, AlertTriangle, CalendarCheck, Trash2
+  Target, TrendingUp, Calendar, Zap, AlertTriangle, CalendarCheck, Trash2,
+  Pencil, Plus, X
 } from "lucide-react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
@@ -14,6 +15,8 @@ import { ProgressBar } from "../components/ui/ProgressBar";
 import { Skeleton } from "../components/ui/Skeleton";
 import { MilestoneChart } from "../components/ui/MilestoneChart";
 import { ResourceList } from "../components/ui/ResourceCard";
+import { Modal } from "../components/ui/Modal";
+import { Input } from "../components/ui/Input";
 
 function RoadmapDetailPage() {
   const { roadmapId } = useParams();
@@ -28,6 +31,21 @@ function RoadmapDetailPage() {
   const [recentlyCompleted, setRecentlyCompleted] = useState(new Set());
   const [completingId, setCompletingId] = useState(null);
   const [resourceFilter, setResourceFilter] = useState("all");
+
+  // Edit / CRUD states
+  const [editRoadmapOpen, setEditRoadmapOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editMilestoneOpen, setEditMilestoneOpen] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState(null);
+  const [mTitle, setMTitle] = useState("");
+  const [mDesc, setMDesc] = useState("");
+  const [mDays, setMDays] = useState(7);
+  const [addMilestoneOpen, setAddMilestoneOpen] = useState(false);
+  const [newMTitle, setNewMTitle] = useState("");
+  const [newMDesc, setNewMDesc] = useState("");
+  const [newMDays, setNewMDays] = useState(7);
+  const [saving, setSaving] = useState(false);
 
   const fetchRoadmap = async () => {
     try {
@@ -161,23 +179,36 @@ function RoadmapDetailPage() {
               {roadmap.description}
             </p>
           </div>
-          <button
-            onClick={async () => {
-              if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
-              try {
-                await API.delete(`/roadmaps/${roadmapId}`);
-                toast.success("Roadmap deleted");
-                navigate("/dashboard");
-              } catch (error) {
-                console.error(error);
-                toast.error("Failed to delete roadmap");
-              }
-            }}
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </button>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => {
+                setEditTitle(roadmap.title);
+                setEditDesc(roadmap.description || "");
+                setEditRoadmapOpen(true);
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-colors text-sm font-medium"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </button>
+            <button
+              onClick={async () => {
+                if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
+                try {
+                  await API.delete(`/roadmaps/${roadmapId}`);
+                  toast.success("Roadmap deleted");
+                  navigate("/dashboard");
+                } catch (error) {
+                  console.error(error);
+                  toast.error("Failed to delete roadmap");
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </button>
+          </div>
         </div>
       </div>
 
@@ -358,6 +389,41 @@ function RoadmapDetailPage() {
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
+                    {!milestone.completed && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingMilestone(milestone);
+                          setMTitle(milestone.title);
+                          setMDesc(milestone.description || "");
+                          setMDays(milestone.estimated_days);
+                          setEditMilestoneOpen(true);
+                        }}
+                        className="p-1.5 rounded-md text-slate-500 hover:text-indigo-400 hover:bg-slate-800 transition-colors"
+                        title="Edit milestone"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    )}
+                    {!milestone.completed && (
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!window.confirm(`Delete milestone "${milestone.title}"?`)) return;
+                          try {
+                            await API.delete(`/roadmaps/milestones/${milestone.id}`);
+                            toast.success("Milestone removed");
+                            await fetchRoadmap();
+                          } catch (err) {
+                            toast.error("Failed to delete milestone");
+                          }
+                        }}
+                        className="p-1.5 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                        title="Delete milestone"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                     {milestone.completed && !isExpanded && (
                        <span className="hidden sm:flex text-emerald-500 text-sm font-medium items-center">
                          Done
@@ -432,6 +498,159 @@ function RoadmapDetailPage() {
           );
         })}
       </div>
+
+      {/* Add Milestone Button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => { setNewMTitle(""); setNewMDesc(""); setNewMDays(7); setAddMilestoneOpen(true); }}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-colors text-sm font-medium"
+        >
+          <Plus className="h-5 w-5" />
+          Add Milestone
+        </button>
+      </div>
+
+      {/* ====== MODALS ====== */}
+
+      {/* Edit Roadmap Modal */}
+      <Modal isOpen={editRoadmapOpen} onClose={() => setEditRoadmapOpen(false)} title="Edit Roadmap">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Roadmap title" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <textarea
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              rows={3}
+              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              placeholder="Roadmap description"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setEditRoadmapOpen(false)}>Cancel</Button>
+            <Button
+              disabled={saving || !editTitle.trim()}
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  await API.put(`/roadmaps/${roadmapId}`, { title: editTitle.trim(), description: editDesc.trim() });
+                  toast.success("Roadmap updated");
+                  setEditRoadmapOpen(false);
+                  setRoadmap(prev => ({ ...prev, title: editTitle.trim(), description: editDesc.trim() }));
+                } catch (err) {
+                  toast.error("Failed to update roadmap");
+                } finally { setSaving(false); }
+              }}
+            >{saving ? "Saving..." : "Save Changes"}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Milestone Modal */}
+      <Modal isOpen={editMilestoneOpen} onClose={() => setEditMilestoneOpen(false)} title="Edit Milestone">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <Input value={mTitle} onChange={(e) => setMTitle(e.target.value)} placeholder="Milestone title" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <textarea
+              value={mDesc}
+              onChange={(e) => setMDesc(e.target.value)}
+              rows={3}
+              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              placeholder="Milestone description"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
+            <Input type="number" min={1} value={mDays} onChange={(e) => setMDays(Number(e.target.value))} />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setEditMilestoneOpen(false)}>Cancel</Button>
+            <Button
+              disabled={saving || !mTitle.trim()}
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  await API.put(`/roadmaps/milestones/${editingMilestone.id}`, {
+                    title: mTitle.trim(),
+                    description: mDesc.trim(),
+                    estimated_days: mDays
+                  });
+                  toast.success("Milestone updated");
+                  setEditMilestoneOpen(false);
+                  // Optimistic update
+                  setRoadmap(prev => ({
+                    ...prev,
+                    milestones: prev.milestones.map(m =>
+                      m.id === editingMilestone.id
+                        ? { ...m, title: mTitle.trim(), description: mDesc.trim(), estimated_days: mDays }
+                        : m
+                    )
+                  }));
+                } catch (err) {
+                  toast.error("Failed to update milestone");
+                } finally { setSaving(false); }
+              }}
+            >{saving ? "Saving..." : "Save Changes"}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Add Milestone Modal */}
+      <Modal isOpen={addMilestoneOpen} onClose={() => setAddMilestoneOpen(false)} title="Add Milestone">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <Input value={newMTitle} onChange={(e) => setNewMTitle(e.target.value)} placeholder="e.g. Learn React Hooks" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <textarea
+              value={newMDesc}
+              onChange={(e) => setNewMDesc(e.target.value)}
+              rows={3}
+              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              placeholder="What should be learned in this milestone?"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
+            <Input type="number" min={1} value={newMDays} onChange={(e) => setNewMDays(Number(e.target.value))} />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setAddMilestoneOpen(false)}>Cancel</Button>
+            <Button
+              disabled={saving || !newMTitle.trim()}
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  const res = await API.post(`/roadmaps/${roadmapId}/milestones`, {
+                    title: newMTitle.trim(),
+                    description: newMDesc.trim(),
+                    estimated_days: newMDays
+                  });
+                  toast.success("Milestone added");
+                  setAddMilestoneOpen(false);
+                  // Optimistic: append new milestone
+                  setRoadmap(prev => ({
+                    ...prev,
+                    milestones: [...prev.milestones, { ...res.data, completed: false, resources: [] }]
+                  }));
+                } catch (err) {
+                  toast.error("Failed to add milestone");
+                } finally { setSaving(false); }
+              }}
+            >{saving ? "Adding..." : "Add Milestone"}</Button>
+          </div>
+        </div>
+      </Modal>
+
     </DashboardLayout>
   );
 }
