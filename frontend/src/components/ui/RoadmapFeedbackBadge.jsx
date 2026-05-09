@@ -1,21 +1,9 @@
-import React, { useEffect, useState } from "react";
-import API from "../../api/axios";
+import React from "react";
 import { Activity } from "lucide-react";
+import { useFeedback } from "../../hooks/useRoadmaps";
 
 export function RoadmapFeedbackBadge({ roadmapId }) {
-  const [feedback, setFeedback] = useState(null);
-
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      try {
-        const response = await API.get(`/roadmaps/${roadmapId}/feedback`);
-        setFeedback(response.data);
-      } catch (error) {
-        console.error("Failed to fetch feedback", error);
-      }
-    };
-    fetchFeedback();
-  }, [roadmapId]);
+  const { data: feedback } = useFeedback(roadmapId);
 
   if (!feedback) return null;
 

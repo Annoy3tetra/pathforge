@@ -30,3 +30,10 @@ class User(Base):
         "Roadmap",
         backref="owner"
     )
+
+    profile = relationship(
+        "UserProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete"
+    )

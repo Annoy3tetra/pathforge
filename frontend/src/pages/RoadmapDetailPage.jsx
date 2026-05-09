@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import API from "../api/axios";
-import toast from "react-hot-toast";
 import {
   ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp,
   Target, TrendingUp, Calendar, Zap, AlertTriangle, CalendarCheck, Trash2,
@@ -18,13 +16,28 @@ import { ResourceList } from "../components/ui/ResourceCard";
 import { Modal } from "../components/ui/Modal";
 import { Input } from "../components/ui/Input";
 
+import {
+  useRoadmap, useFeedback, useAnalytics,
+  useCompleteMilestone, useDeleteRoadmap, useUpdateRoadmap,
+  useUpdateMilestone, useDeleteMilestone, useAddMilestone,
+} from "../hooks/useRoadmaps";
+
 function RoadmapDetailPage() {
   const { roadmapId } = useParams();
   const navigate = useNavigate();
-  const [roadmap, setRoadmap] = useState(null);
-  const [feedback, setFeedback] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // TanStack Query — data fetching
+  const { data: roadmap, isLoading } = useRoadmap(roadmapId);
+  const { data: feedback } = useFeedback(roadmapId);
+  const { data: analytics } = useAnalytics(roadmapId);
+
+  // TanStack Query — mutations
+  const completeMutation = useCompleteMilestone();
+  const deleteRoadmapMutation = useDeleteRoadmap();
+  const updateRoadmapMutation = useUpdateRoadmap();
+  const updateMilestoneMutation = useUpdateMilestone();
+  const deleteMilestoneMutation = useDeleteMilestone();
+  const addMilestoneMutation = useAddMilestone();
 
   // UX States
   const [expandedMilestones, setExpandedMilestones] = useState(new Set());
@@ -47,37 +60,15 @@ function RoadmapDetailPage() {
   const [newMDays, setNewMDays] = useState(7);
   const [saving, setSaving] = useState(false);
 
-  const fetchRoadmap = async () => {
-    try {
-      const [roadmapsRes, feedbackRes, analyticsRes] = await Promise.all([
-        API.get("/roadmaps/"),
-        API.get(`/roadmaps/${roadmapId}/feedback`),
-        API.get(`/roadmaps/${roadmapId}/analytics`),
-      ]);
-
-      const foundRoadmap = roadmapsRes.data.find((r) => r.id === Number(roadmapId));
-      setRoadmap(foundRoadmap);
-      setFeedback(feedbackRes.data);
-      setAnalytics(analyticsRes.data);
-
-      // Auto-expand the first incomplete milestone
-      if (foundRoadmap && expandedMilestones.size === 0) {
-        const firstIncomplete = foundRoadmap.milestones.find(m => !m.completed);
-        if (firstIncomplete) {
-          setExpandedMilestones(new Set([firstIncomplete.id]));
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load roadmap");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Auto-expand first incomplete milestone on initial load
   useEffect(() => {
-    fetchRoadmap();
-  }, [roadmapId]);
+    if (roadmap && expandedMilestones.size === 0) {
+      const firstIncomplete = roadmap.milestones.find(m => !m.completed);
+      if (firstIncomplete) {
+        setExpandedMilestones(new Set([firstIncomplete.id]));
+      }
+    }
+  }, [roadmap]);
 
   const toggleMilestone = (id) => {
     const newExpanded = new Set(expandedMilestones);
@@ -92,12 +83,9 @@ function RoadmapDetailPage() {
   const handleComplete = async (milestoneId) => {
     try {
       setCompletingId(milestoneId);
-      await API.put(`/roadmaps/milestones/${milestoneId}/complete`);
+      await completeMutation.mutateAsync(milestoneId);
 
       setRecentlyCompleted(prev => new Set(prev).add(milestoneId));
-      toast.success("Milestone crushed! Keep it up 🚀");
-
-      await fetchRoadmap();
 
       setTimeout(() => {
         setRecentlyCompleted(prev => {
@@ -106,10 +94,8 @@ function RoadmapDetailPage() {
           return next;
         });
       }, 2000);
-
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to update milestone");
+      // toast already handled by hook
     } finally {
       setCompletingId(null);
     }
@@ -194,14 +180,8 @@ function RoadmapDetailPage() {
             <button
               onClick={async () => {
                 if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
-                try {
-                  await API.delete(`/roadmaps/${roadmapId}`);
-                  toast.success("Roadmap deleted");
-                  navigate("/dashboard");
-                } catch (error) {
-                  console.error(error);
-                  toast.error("Failed to delete roadmap");
-                }
+                await deleteRoadmapMutation.mutateAsync(roadmapId);
+                navigate("/dashboard");
               }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
             >
@@ -410,13 +390,7 @@ function RoadmapDetailPage() {
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (!window.confirm(`Delete milestone "${milestone.title}"?`)) return;
-                          try {
-                            await API.delete(`/roadmaps/milestones/${milestone.id}`);
-                            toast.success("Milestone removed");
-                            await fetchRoadmap();
-                          } catch (err) {
-                            toast.error("Failed to delete milestone");
-                          }
+                          deleteMilestoneMutation.mutate(milestone.id);
                         }}
                         className="p-1.5 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors"
                         title="Delete milestone"
@@ -536,12 +510,10 @@ function RoadmapDetailPage() {
               onClick={async () => {
                 setSaving(true);
                 try {
-                  await API.put(`/roadmaps/${roadmapId}`, { title: editTitle.trim(), description: editDesc.trim() });
-                  toast.success("Roadmap updated");
+                  await updateRoadmapMutation.mutateAsync({ roadmapId, updates: { title: editTitle.trim(), description: editDesc.trim() } });
                   setEditRoadmapOpen(false);
-                  setRoadmap(prev => ({ ...prev, title: editTitle.trim(), description: editDesc.trim() }));
                 } catch (err) {
-                  toast.error("Failed to update roadmap");
+                  // toast handled by hook
                 } finally { setSaving(false); }
               }}
             >{saving ? "Saving..." : "Save Changes"}</Button>
@@ -577,24 +549,13 @@ function RoadmapDetailPage() {
               onClick={async () => {
                 setSaving(true);
                 try {
-                  await API.put(`/roadmaps/milestones/${editingMilestone.id}`, {
-                    title: mTitle.trim(),
-                    description: mDesc.trim(),
-                    estimated_days: mDays
+                  await updateMilestoneMutation.mutateAsync({
+                    milestoneId: editingMilestone.id,
+                    updates: { title: mTitle.trim(), description: mDesc.trim(), estimated_days: mDays }
                   });
-                  toast.success("Milestone updated");
                   setEditMilestoneOpen(false);
-                  // Optimistic update
-                  setRoadmap(prev => ({
-                    ...prev,
-                    milestones: prev.milestones.map(m =>
-                      m.id === editingMilestone.id
-                        ? { ...m, title: mTitle.trim(), description: mDesc.trim(), estimated_days: mDays }
-                        : m
-                    )
-                  }));
                 } catch (err) {
-                  toast.error("Failed to update milestone");
+                  // toast handled by hook
                 } finally { setSaving(false); }
               }}
             >{saving ? "Saving..." : "Save Changes"}</Button>
@@ -630,20 +591,13 @@ function RoadmapDetailPage() {
               onClick={async () => {
                 setSaving(true);
                 try {
-                  const res = await API.post(`/roadmaps/${roadmapId}/milestones`, {
-                    title: newMTitle.trim(),
-                    description: newMDesc.trim(),
-                    estimated_days: newMDays
+                  await addMilestoneMutation.mutateAsync({
+                    roadmapId,
+                    milestone: { title: newMTitle.trim(), description: newMDesc.trim(), estimated_days: newMDays }
                   });
-                  toast.success("Milestone added");
                   setAddMilestoneOpen(false);
-                  // Optimistic: append new milestone
-                  setRoadmap(prev => ({
-                    ...prev,
-                    milestones: [...prev.milestones, { ...res.data, completed: false, resources: [] }]
-                  }));
                 } catch (err) {
-                  toast.error("Failed to add milestone");
+                  // toast handled by hook
                 } finally { setSaving(false); }
               }}
             >{saving ? "Adding..." : "Add Milestone"}</Button>

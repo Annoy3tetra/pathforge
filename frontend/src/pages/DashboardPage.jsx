@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import API from "../api/axios";
 import toast from "react-hot-toast";
 import { Sparkles, ArrowRight, CheckCircle2, Circle, Compass, BrainCircuit, ArrowUp, RefreshCw, AlertCircle, Trash2 } from "lucide-react";
 
@@ -11,6 +10,8 @@ import { Input } from "../components/ui/Input";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Skeleton } from "../components/ui/Skeleton";
 import { RoadmapFeedbackBadge } from "../components/ui/RoadmapFeedbackBadge";
+
+import { useRoadmaps, useGenerateRoadmap, useCompleteMilestone, useDeleteRoadmap } from "../hooks/useRoadmaps";
 
 // AI Loading Phrases
 const AI_PHRASES = [
@@ -31,30 +32,17 @@ const SUGGESTED_GOALS = [
 ];
 
 function DashboardPage() {
-  const [roadmaps, setRoadmaps] = useState([]);
   const [goal, setGoal] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
-  
-  // AI Generation UX State
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [generationError, setGenerationError] = useState(null);
 
-  const fetchRoadmaps = async () => {
-    try {
-      const response = await API.get("/roadmaps/");
-      setRoadmaps(response.data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to fetch roadmaps");
-    } finally {
-      setInitialLoad(false);
-    }
-  };
+  // TanStack Query hooks
+  const { data: roadmaps = [], isLoading: initialLoad } = useRoadmaps();
+  const generateMutation = useGenerateRoadmap();
+  const completeMutation = useCompleteMilestone();
+  const deleteMutation = useDeleteRoadmap();
 
-  useEffect(() => {
-    fetchRoadmaps();
-  }, []);
+  const loading = generateMutation.isPending;
 
   // Handle AI Phrase Rotation
   useEffect(() => {
@@ -70,45 +58,24 @@ function DashboardPage() {
 
   const handleGenerate = async () => {
     if (!goal.trim()) return;
+    setGenerationError(null);
     try {
-      setLoading(true);
-      setGenerationError(null);
-      await API.post("/roadmaps/generate", { goal });
-      toast.success("Roadmap generated successfully!");
+      await generateMutation.mutateAsync(goal);
       setGoal("");
-      await fetchRoadmaps();
     } catch (error) {
-      console.error(error);
       const detail = error.response?.data?.detail;
       const errorMsg = typeof detail === "object" ? detail.error : "Generation failed. Please try again.";
       setGenerationError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleComplete = async (milestoneId) => {
-    try {
-      await API.put(`/roadmaps/milestones/${milestoneId}/complete`);
-      toast.success("Milestone completed!");
-      await fetchRoadmaps();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update milestone");
-    }
+  const handleComplete = (milestoneId) => {
+    completeMutation.mutate(milestoneId);
   };
 
-  const handleDelete = async (roadmapId) => {
+  const handleDelete = (roadmapId) => {
     if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
-    try {
-      await API.delete(`/roadmaps/${roadmapId}`);
-      toast.success("Roadmap deleted");
-      await fetchRoadmaps();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to delete roadmap");
-    }
+    deleteMutation.mutate(roadmapId);
   };
 
   if (initialLoad) {

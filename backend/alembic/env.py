@@ -32,6 +32,7 @@ from app.models.user import User
 from app.models.roadmap import Roadmap
 from app.models.milestone import Milestone
 from app.models.resource import Resource
+from app.models.user_profile import UserProfile
 
 target_metadata = Base.metadata
 

@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -15,49 +16,61 @@ import RoadmapDetailPage from "./pages/RoadmapDetailPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 function App() {
   return (
-    <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
 
-      <Toaster position="top-right" />
+        <Toaster position="top-right" />
 
-      <BrowserRouter>
+        <BrowserRouter>
 
-        <Routes>
+          <Routes>
 
-          <Route
-            path="/login"
-            element={<LoginPage />}
-          />
+            <Route
+              path="/login"
+              element={<LoginPage />}
+            />
 
-          <Route
-            path="/register"
-            element={<RegisterPage />}
-          />
+            <Route
+              path="/register"
+              element={<RegisterPage />}
+            />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/roadmaps/:roadmapId"
-            element={
-              <ProtectedRoute>
-                <RoadmapDetailPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/roadmaps/:roadmapId"
+              element={
+                <ProtectedRoute>
+                  <RoadmapDetailPage />
+                </ProtectedRoute>
+              }
+            />
 
-        </Routes>
+          </Routes>
 
-      </BrowserRouter>
+        </BrowserRouter>
 
-    </AuthProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
