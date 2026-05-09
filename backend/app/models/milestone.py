@@ -41,3 +41,9 @@ class Milestone(Base):
         "Roadmap",
         back_populates="milestones"
     )
+
+    resources = relationship(
+        "Resource",
+        back_populates="milestone",
+        cascade="all, delete"
+    )

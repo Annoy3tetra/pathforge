@@ -13,6 +13,7 @@ import { Button } from "../components/ui/Button";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Skeleton } from "../components/ui/Skeleton";
 import { MilestoneChart } from "../components/ui/MilestoneChart";
+import { ResourceList } from "../components/ui/ResourceCard";
 
 function RoadmapDetailPage() {
   const { roadmapId } = useParams();
@@ -26,6 +27,7 @@ function RoadmapDetailPage() {
   const [expandedMilestones, setExpandedMilestones] = useState(new Set());
   const [recentlyCompleted, setRecentlyCompleted] = useState(new Set());
   const [completingId, setCompletingId] = useState(null);
+  const [resourceFilter, setResourceFilter] = useState("all");
 
   const fetchRoadmap = async () => {
     try {
@@ -369,7 +371,7 @@ function RoadmapDetailPage() {
 
                 {/* Collapsible Content */}
                 <div className={`transition-all duration-300 ease-in-out origin-top ${
-                  isExpanded ? 'max-h-96 opacity-100 p-4 sm:p-5 pt-0 border-t border-slate-800/50' : 'max-h-0 opacity-0 overflow-hidden px-4 sm:px-5 border-t-0'
+                  isExpanded ? 'max-h-[600px] overflow-y-auto opacity-100 p-4 sm:p-5 pt-0 border-t border-slate-800/50' : 'max-h-0 opacity-0 overflow-hidden px-4 sm:px-5 border-t-0'
                 }`}>
                   <div className="pt-4 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                     <p className={`text-sm leading-relaxed flex-1 ${milestone.completed ? 'text-slate-500' : 'text-slate-300'}`}>
@@ -398,6 +400,31 @@ function RoadmapDetailPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Resources Section */}
+                  {milestone.resources && milestone.resources.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-slate-800/40">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Learning Resources</h4>
+                        <div className="flex gap-1">
+                          {["all", "video", "article", "course", "docs"].map((type) => (
+                            <button
+                              key={type}
+                              onClick={(e) => { e.stopPropagation(); setResourceFilter(type); }}
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                                resourceFilter === type
+                                  ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/40"
+                                  : "text-slate-500 hover:text-slate-300 border border-transparent"
+                              }`}
+                            >
+                              {type}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <ResourceList resources={milestone.resources} filter={resourceFilter} />
+                    </div>
+                  )}
                 </div>
               </Card>
 

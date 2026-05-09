@@ -12,10 +12,15 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.roadmap import Roadmap
 from app.models.milestone import Milestone
+from app.models.resource import Resource
 
 from app.schemas.roadmap import (
     RoadmapCreate,
-    RoadmapResponse
+    RoadmapResponse,
+    RoadmapUpdate,
+    MilestoneUpdate,
+    MilestoneAdd,
+    MilestoneResponse
 )
 
 from app.api.deps import (
@@ -152,6 +157,144 @@ def delete_roadmap(
         "message": "Roadmap deleted successfully"
     }
 
+
+@router.put("/{roadmap_id}")
+def update_roadmap(
+    roadmap_id: int,
+    updates: RoadmapUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    if updates.title is not None:
+        roadmap.title = updates.title
+    if updates.description is not None:
+        roadmap.description = updates.description
+
+    db.commit()
+    db.refresh(roadmap)
+
+    return {
+        "message": "Roadmap updated successfully"
+    }
+
+
+@router.put("/milestones/{milestone_id}")
+def update_milestone(
+    milestone_id: int,
+    updates: MilestoneUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    milestone = db.query(Milestone).filter(
+        Milestone.id == milestone_id
+    ).first()
+
+    if not milestone:
+        raise HTTPException(
+            status_code=404,
+            detail="Milestone not found"
+        )
+
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == milestone.roadmap_id
+    ).first()
+
+    if roadmap.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Unauthorized"
+        )
+
+    if updates.title is not None:
+        milestone.title = updates.title
+    if updates.description is not None:
+        milestone.description = updates.description
+    if updates.estimated_days is not None:
+        milestone.estimated_days = updates.estimated_days
+
+    db.commit()
+
+    return {
+        "message": "Milestone updated successfully"
+    }
+
+
+@router.delete("/milestones/{milestone_id}")
+def delete_milestone(
+    milestone_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    milestone = db.query(Milestone).filter(
+        Milestone.id == milestone_id
+    ).first()
+
+    if not milestone:
+        raise HTTPException(
+            status_code=404,
+            detail="Milestone not found"
+        )
+
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == milestone.roadmap_id
+    ).first()
+
+    if roadmap.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Unauthorized"
+        )
+
+    db.delete(milestone)
+    db.commit()
+
+    return {
+        "message": "Milestone deleted successfully"
+    }
+
+
+@router.post("/{roadmap_id}/milestones", response_model=MilestoneResponse)
+def add_milestone(
+    roadmap_id: int,
+    milestone_data: MilestoneAdd,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    new_milestone = Milestone(
+        title=milestone_data.title,
+        description=milestone_data.description,
+        estimated_days=milestone_data.estimated_days,
+        roadmap_id=roadmap_id
+    )
+
+    db.add(new_milestone)
+    db.commit()
+    db.refresh(new_milestone)
+
+    return new_milestone
+
 @router.get("/{roadmap_id}/dashboard")
 def roadmap_dashboard(
     roadmap_id: int,
@@ -276,6 +419,18 @@ def generate_ai_roadmap(
         )
 
         db.add(new_milestone)
+        db.commit()
+        db.refresh(new_milestone)
+
+        for res in milestone.get("resources", []):
+            new_resource = Resource(
+                title=res["title"],
+                url=res["url"],
+                type=res["type"],
+                difficulty=res.get("difficulty"),
+                milestone_id=new_milestone.id
+            )
+            db.add(new_resource)
 
     db.commit()
 

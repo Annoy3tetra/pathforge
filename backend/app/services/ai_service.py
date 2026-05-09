@@ -105,6 +105,7 @@ def validate_roadmap(data: dict) -> dict:
             "title": m["title"].strip(),
             "description": (m.get("description") or "").strip(),
             "estimated_days": est_days,
+            "resources": _validate_resources(m.get("resources", []), idx),
         })
 
     if len(cleaned_milestones) == 0:
@@ -119,7 +120,46 @@ def validate_roadmap(data: dict) -> dict:
     return data
 
 
+VALID_RESOURCE_TYPES = {"video", "article", "course", "docs"}
+VALID_DIFFICULTIES = {"beginner", "intermediate", "advanced"}
+
+
+def _validate_resources(resources: list, milestone_idx: int) -> list:
+    """Validate and sanitize resource entries for a single milestone."""
+    if not isinstance(resources, list):
+        return []
+
+    cleaned = []
+    for r in resources:
+        if not isinstance(r, dict):
+            continue
+        title = r.get("title")
+        url = r.get("url")
+        if not title or not url or not isinstance(title, str) or not isinstance(url, str):
+            continue
+
+        rtype = str(r.get("type", "article")).lower().strip()
+        if rtype not in VALID_RESOURCE_TYPES:
+            rtype = "article"
+
+        difficulty = r.get("difficulty")
+        if difficulty:
+            difficulty = str(difficulty).lower().strip()
+            if difficulty not in VALID_DIFFICULTIES:
+                difficulty = None
+
+        cleaned.append({
+            "title": title.strip(),
+            "url": url.strip(),
+            "type": rtype,
+            "difficulty": difficulty,
+        })
+
+    return cleaned
+
+
 def _call_groq(prompt: str) -> str:
+
     """
     Make a single call to the Groq API.
     Returns the content string from the response.
@@ -195,10 +235,23 @@ def generate_roadmap(goal: str) -> dict:
         {{
           "title": "Milestone title",
           "description": "Milestone description",
-          "estimated_days": 7
+          "estimated_days": 7,
+          "resources": [
+            {{
+              "title": "Resource name",
+              "url": "https://example.com",
+              "type": "article",
+              "difficulty": "beginner"
+            }}
+          ]
         }}
       ]
     }}
+
+    For each milestone, include 2-3 real, relevant learning resources.
+    Resource type must be one of: video, article, course, docs.
+    Difficulty must be one of: beginner, intermediate, advanced.
+    Use real URLs from sites like MDN, YouTube, freeCodeCamp, Coursera, official docs, etc.
     """
 
     last_error = None
