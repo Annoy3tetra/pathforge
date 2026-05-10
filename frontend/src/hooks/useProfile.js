@@ -70,9 +70,7 @@ export function useUploadProfileImage() {
     mutationFn: async (file) => {
       const formData = new FormData();
       formData.append("file", file);
-      const { data } = await API.post("/profile/image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await API.post("/profile/image", formData);
       return data.url;
     },
     onError: (err) => {

@@ -111,6 +111,7 @@ def update_my_profile(
         profile,
         data.model_dump(exclude_unset=True)
     )
+    return updated
 
 from app.models.roadmap import Roadmap
 from app.services.insights_service import generate_insights

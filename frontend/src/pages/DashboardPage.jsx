@@ -1,7 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { Sparkles, ArrowRight, CheckCircle2, Circle, Compass, BrainCircuit, ArrowUp, RefreshCw, AlertCircle, Trash2 } from "lucide-react";
+import { 
+  Sparkles, 
+  ArrowRight, 
+  CheckCircle2, 
+  Circle, 
+  Compass, 
+  BrainCircuit, 
+  ArrowUp, 
+  RefreshCw, 
+  AlertCircle, 
+  Trash2,
+  TrendingUp,
+  Layout
+} from "lucide-react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/Card";
@@ -14,8 +28,8 @@ import { RoadmapFeedbackBadge } from "../components/ui/RoadmapFeedbackBadge";
 import { useRoadmaps, useGenerateRoadmap, useCompleteMilestone, useDeleteRoadmap } from "../hooks/useRoadmaps";
 import { useProfile } from "../hooks/useProfile";
 import { InsightsCards } from "../components/ui/InsightsCards";
+import { cn } from "../lib/utils";
 
-// AI Loading Phrases
 const AI_PHRASES = [
   "Analyzing your goal...",
   "Consulting knowledge base...",
@@ -28,9 +42,9 @@ const AI_PHRASES = [
 const SUGGESTED_GOALS = [
   "Machine Learning",
   "Web Development",
-  "Data Structures & Algorithms",
+  "Data Structures",
   "DevOps",
-  "Mobile App Development"
+  "Mobile Apps"
 ];
 
 function DashboardPage() {
@@ -38,7 +52,6 @@ function DashboardPage() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [generationError, setGenerationError] = useState(null);
 
-  // TanStack Query hooks
   const { data: roadmaps = [], isLoading: initialLoad } = useRoadmaps();
   const { data: profile } = useProfile();
   
@@ -47,17 +60,15 @@ function DashboardPage() {
   const deleteMutation = useDeleteRoadmap();
   
   const hasIncompleteProfile = !profile || !profile.skill_level || !profile.weekly_study_hours || !profile.career_goal;
-
   const loading = generateMutation.isPending;
 
-  // Handle AI Phrase Rotation
   useEffect(() => {
     let interval;
     if (loading) {
       setPhraseIndex(0);
       interval = setInterval(() => {
         setPhraseIndex((prev) => (prev + 1) % AI_PHRASES.length);
-      }, 2000);
+      }, 2500);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -80,38 +91,23 @@ function DashboardPage() {
   };
 
   const handleDelete = (roadmapId) => {
-    if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
+    if (!window.confirm("Are you sure you want to delete this roadmap?")) return;
     deleteMutation.mutate(roadmapId);
   };
 
   if (initialLoad) {
     return (
       <DashboardLayout title="Dashboard">
-        {/* Skeleton Generate Section */}
-        <Skeleton className="h-48 w-full mb-8 rounded-xl" />
-
-        <div className="mb-6 flex items-center justify-between">
-          <Skeleton className="h-7 w-48" />
-          <Skeleton className="h-6 w-20 rounded-full" />
+        <Skeleton className="h-56 w-full mb-10 rounded-2xl" />
+        <div className="mb-8 flex items-center justify-between">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-7 w-24 rounded-full" />
         </div>
-
-        {/* Skeleton Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="flex flex-col h-72">
-              <CardHeader className="pb-4">
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6 mt-1" />
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <Skeleton className="h-2.5 w-full rounded-full" />
-                <div className="space-y-2 mt-6">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              </CardContent>
+            <Card key={i} className="h-80 shadow-none bg-white/5 border-white/5">
+              <CardHeader><Skeleton className="h-6 w-3/4 mb-3" /><Skeleton className="h-4 w-full" /></CardHeader>
+              <CardContent><Skeleton className="h-3 w-full rounded-full mb-8" /><Skeleton className="h-20 w-full" /></CardContent>
             </Card>
           ))}
         </div>
@@ -120,221 +116,285 @@ function DashboardPage() {
   }
 
   return (
-    <DashboardLayout title="Dashboard">
-      {/* Generate Section */}
-      <Card className={`mb-8 overflow-hidden transition-all duration-500 ${
-        loading ? "border-indigo-500/50 shadow-[0_0_30px_-5px_rgba(99,102,241,0.2)]" : generationError ? "border-rose-500/30 bg-gradient-to-br from-slate-900 to-rose-950/10" : "bg-gradient-to-br from-slate-900 to-indigo-950/20 border-indigo-500/20"
-      }`}>
-        <div className={`h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 transition-all duration-1000 ${loading ? "opacity-100 bg-[length:200%_100%] animate-[gradient_2s_linear_infinite]" : "opacity-0"}`} />
-        
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className={`h-5 w-5 ${loading ? "text-indigo-400 animate-pulse" : "text-indigo-400"}`} />
-            {loading ? "AI is forging your path..." : "Generate New Roadmap"}
-          </CardTitle>
-          <CardDescription>
-            {loading ? "Please wait while our AI analyzes your goal and creates a customized learning journey." : "Tell our AI what you want to learn, and we'll create a step-by-step path for you."}
+    <DashboardLayout title="Overview">
+      {/* ─── AI Generate Section ─── */}
+      <section className="mb-12">
+        <Card className={cn(
+          "relative overflow-hidden transition-all duration-500 border-indigo-500/10",
+          loading && "border-indigo-500/40 shadow-2xl shadow-indigo-500/20"
+        )}>
+          {/* Animated top border */}
+          <AnimatePresence>
+            {loading && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-[gradient_2s_linear_infinite]" 
+              />
+            )}
+          </AnimatePresence>
+          
+          <CardHeader className="relative z-10">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 bg-indigo-500/10 rounded-lg">
+                <Sparkles className={cn("h-5 w-5 text-indigo-400", loading && "animate-spin")} />
+              </div>
+              <div>
+                <CardTitle>{loading ? "AI Forging Your Path..." : "Forge New Path"}</CardTitle>
+                <CardDescription>
+                  {loading ? "Analyzing global knowledge to build your custom curriculum." : "Describe your learning goal and we'll generate a personalized AI roadmap."}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="relative z-10">
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="flex flex-col items-center justify-center py-10 bg-indigo-500/5 rounded-2xl border border-indigo-500/10"
+                >
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    className="mb-6"
+                  >
+                    <BrainCircuit className="h-12 w-12 text-indigo-400" />
+                  </motion.div>
+                  <p className="text-lg font-semibold text-indigo-100 mb-2">
+                    {AI_PHRASES[phraseIndex]}
+                  </p>
+                  <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-4 overflow-hidden relative">
+                    <motion.div 
+                      className="absolute inset-y-0 bg-indigo-500 w-1/2 rounded-full"
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                </motion.div>
+              ) : generationError ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center py-10 bg-rose-500/5 rounded-2xl border border-rose-500/10"
+                >
+                  <AlertCircle className="h-12 w-12 text-rose-400 mb-4" />
+                  <p className="text-lg font-bold text-rose-200 mb-2">Generation Failed</p>
+                  <p className="text-sm text-slate-400 mb-6 text-center max-w-md">{generationError}</p>
+                  <Button
+                    onClick={() => { setGenerationError(null); handleGenerate(); }}
+                    variant="danger"
+                    disabled={!goal.trim()}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Retry Generation
+                  </Button>
+                </motion.div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Input
+                      type="text"
+                      placeholder="e.g., Become a Senior Machine Learning Engineer..."
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      className="flex-1 text-base h-12"
+                      onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                    />
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={!goal.trim() || loading}
+                      className="h-12 px-8 min-w-[160px]"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Generate
+                    </Button>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Suggestions:</span>
+                    {SUGGESTED_GOALS.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => setGoal(suggestion)}
+                        className="text-xs font-medium text-slate-400 bg-slate-800/50 hover:bg-indigo-500/10 hover:text-indigo-400 px-3 py-1.5 rounded-full transition-all border border-white/5 hover:border-indigo-500/30"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <Sparkles className="h-3 w-3 text-indigo-400" />
+                      <span>Optimized for your profile skill level & career goals</span>
+                    </div>
+                    {hasIncompleteProfile && (
+                      <Link to="/profile">
+                        <Button variant="ghost" size="sm" className="text-indigo-400 bg-indigo-500/5 hover:bg-indigo-500/10 border border-indigo-500/20">
+                          Complete Profile for better AI
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* ─── Insights Section ─── */}
+      <AnimatePresence>
+        {roadmaps.length > 0 && (
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="h-5 w-5 text-emerald-400" />
+              <h2 className="text-xl font-bold text-white tracking-tight">Learning Insights</h2>
+            </div>
+            <InsightsCards />
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Roadmaps Grid ─── */}
+      <section>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <Layout className="h-5 w-5 text-indigo-400" />
+            <h2 className="text-xl font-bold text-white tracking-tight">Your Active Paths</h2>
+          </div>
+          <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-slate-400 uppercase tracking-widest">
+            {roadmaps.length} {roadmaps.length === 1 ? 'Path' : 'Paths'}
+          </div>
+        </div>
+
+        {roadmaps.length === 0 ? (
+          <Card className="py-24 text-center border-dashed border-2 bg-transparent">
+            <div className="max-w-md mx-auto px-4 flex flex-col items-center">
+              <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20">
+                <Compass className="h-10 w-10 text-indigo-400 animate-pulse" />
+              </div>
+              <CardTitle className="text-2xl mb-4">No learning paths yet</CardTitle>
+              <CardDescription className="text-base mb-8">
+                Your future is waiting to be forged. Type your goal above and let PathForge design your success.
+              </CardDescription>
+              <ArrowUp className="text-indigo-400 animate-bounce h-6 w-6" />
+            </div>
+          </Card>
+        ) : (
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial="hidden"
+            animate="show"
+            variants={{
+              show: { transition: { staggerChildren: 0.1 } }
+            }}
+          >
+            {roadmaps.map((roadmap) => (
+              <RoadmapCard 
+                key={roadmap.id} 
+                roadmap={roadmap} 
+                onDelete={handleDelete}
+                onComplete={handleComplete}
+              />
+            ))}
+          </motion.div>
+        )}
+      </section>
+    </DashboardLayout>
+  );
+}
+
+// ─── Sub-Components ───
+
+function RoadmapCard({ roadmap, onDelete, onComplete }) {
+  const total = roadmap.milestones.length;
+  const completed = roadmap.milestones.filter((m) => m.completed).length;
+  const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0 }
+      }}
+    >
+      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30">
+        <CardHeader className="pb-4">
+          <div className="flex justify-between items-start gap-4 mb-2">
+            <CardTitle className="text-lg line-clamp-1 group-hover:text-indigo-400 transition-colors">
+              {roadmap.title}
+            </CardTitle>
+            <RoadmapFeedbackBadge roadmapId={roadmap.id} />
+          </div>
+          <CardDescription className="line-clamp-2 h-10">
+            {roadmap.description || "Personalized learning curriculum for this goal."}
           </CardDescription>
         </CardHeader>
         
-        <CardContent>
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-6 bg-slate-950/50 rounded-lg border border-slate-800">
-              <BrainCircuit className="h-10 w-10 text-indigo-400 animate-pulse mb-4" />
-              <p className="text-sm font-medium text-indigo-300 animate-pulse transition-all duration-300">
-                {AI_PHRASES[phraseIndex]}
-              </p>
-              <div className="w-48 h-1.5 bg-slate-800 rounded-full mt-4 overflow-hidden">
-                <div className="h-full bg-indigo-500 animate-[pulse_1s_ease-in-out_infinite]" style={{ width: '100%', transformOrigin: 'left', animationName: 'progress' }} />
-              </div>
+        <CardContent className="flex-1">
+          <div className="space-y-2 mb-6">
+            <div className="flex justify-between items-end text-sm">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+              <span className="text-indigo-400 font-black">{progress}%</span>
             </div>
-          ) : generationError ? (
-            <div className="flex flex-col items-center justify-center py-6 bg-rose-950/20 rounded-lg border border-rose-500/20">
-              <AlertCircle className="h-10 w-10 text-rose-400 mb-3" />
-              <p className="text-sm font-semibold text-rose-300 mb-1">Generation Failed</p>
-              <p className="text-xs text-slate-400 mb-4 max-w-md text-center">{generationError}</p>
-              <Button
-                onClick={() => { setGenerationError(null); handleGenerate(); }}
-                className="bg-rose-600 hover:bg-rose-500"
-                disabled={!goal.trim()}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Retry Generation
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Input
-                  type="text"
-                  placeholder="e.g., I want to become a full-stack developer in 6 months..."
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                  className="flex-1 bg-slate-950/50"
-                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                  disabled={loading}
-                />
-                <Button
-                  onClick={handleGenerate}
-                  disabled={!goal.trim() || loading}
-                  className="sm:w-auto w-full group"
-                >
-                  <Sparkles className="mr-2 h-4 w-4 group-hover:animate-spin" />
-                  Generate Path
-                </Button>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-medium text-slate-500">Suggestions:</span>
-                {SUGGESTED_GOALS.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => setGoal(suggestion)}
-                    className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded-full transition-colors border border-slate-700"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-                  Roadmaps are personalized using your profile.
-                </p>
-                {hasIncompleteProfile && (
-                  <Link 
-                    to="/profile" 
-                    className="text-xs bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 px-3 py-1.5 rounded-md font-medium transition-colors border border-indigo-500/20"
-                  >
-                    Complete Profile for Better AI
-                  </Link>
-                )}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Learning Insights */}
-      {roadmaps.length > 0 && <InsightsCards />}
-
-      {/* Roadmaps Grid */}
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-100">Your Learning Paths</h2>
-        <span className="text-sm text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full">
-          {roadmaps.length} {roadmaps.length === 1 ? 'path' : 'paths'}
-        </span>
-      </div>
-
-      {roadmaps.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center py-20 px-4 text-center border-dashed border-2 border-slate-700 bg-slate-900/30 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-900/0 to-slate-900/0"></div>
-          
-          <div className="relative flex flex-col items-center">
-            <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
-              <Compass className="h-10 w-10 text-indigo-400" />
-            </div>
-            <CardTitle className="mb-3 text-2xl">Your journey begins here</CardTitle>
-            <CardDescription className="max-w-md text-base mb-8">
-              You haven't forged any learning paths yet. Let our AI guide you by typing what you want to learn above.
-            </CardDescription>
-            
-            <div className="flex items-center text-indigo-400 animate-bounce">
-              <ArrowUp className="mr-2 h-5 w-5" />
-              <span className="font-medium">Try a suggestion above!</span>
-            </div>
+            <ProgressBar progress={progress} className="h-1.5" />
           </div>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {roadmaps.map((roadmap) => {
-            const total = roadmap.milestones.length;
-            const completed = roadmap.milestones.filter((m) => m.completed).length;
-            const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-            return (
-              <Card key={roadmap.id} className="flex flex-col transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/10 hover:border-indigo-500/50 group bg-slate-900/80">
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start gap-2 mb-1">
-                    <CardTitle className="line-clamp-1" title={roadmap.title}>
-                      {roadmap.title}
-                    </CardTitle>
-                    <RoadmapFeedbackBadge roadmapId={roadmap.id} />
-                  </div>
-                  <CardDescription className="line-clamp-2 min-h-[40px]">
-                    {roadmap.description || "No description provided."}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="flex-1">
-                  <div className="space-y-1.5 mb-5">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-400 font-medium">Progress</span>
-                      <span className="text-indigo-400 font-bold">{progress}%</span>
-                    </div>
-                    <ProgressBar progress={progress} />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Next Milestones</h4>
-                    {roadmap.milestones.slice(0, 3).map((milestone) => (
-                      <div key={milestone.id} className="flex items-start gap-3">
-                        <button 
-                          onClick={() => !milestone.completed && handleComplete(milestone.id)}
-                          className={`mt-0.5 shrink-0 transition-colors ${
-                            milestone.completed 
-                              ? "text-emerald-500" 
-                              : "text-slate-600 hover:text-indigo-400"
-                          }`}
-                          disabled={milestone.completed}
-                        >
-                          {milestone.completed ? (
-                            <CheckCircle2 className="h-5 w-5" />
-                          ) : (
-                            <Circle className="h-5 w-5" />
-                          )}
-                        </button>
-                        <div className="min-w-0 flex-1">
-                          <p className={`text-sm truncate ${
-                            milestone.completed ? "text-slate-500 line-through" : "text-slate-300"
-                          }`}>
-                            {milestone.title}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    {roadmap.milestones.length > 3 && (
-                      <p className="text-xs text-slate-500 pl-8">
-                        + {roadmap.milestones.length - 3} more
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-                
-                <CardFooter className="pt-0 mt-auto">
-                  <div className="flex gap-2 w-full">
-                    <Link to={`/roadmaps/${roadmap.id}`} className="flex-1">
-                      <Button variant="secondary" className="w-full group-hover:bg-slate-700">
-                        View Full Path
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(roadmap.id)}
-                      className="p-2.5 rounded-md border border-slate-700 text-slate-500 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors"
-                      title="Delete roadmap"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </CardFooter>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </DashboardLayout>
+          <div className="space-y-3">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Next Steps</h4>
+            {roadmap.milestones.slice(0, 3).map((milestone) => (
+              <div key={milestone.id} className="flex items-start gap-3 group/item">
+                <button 
+                  onClick={() => !milestone.completed && onComplete(milestone.id)}
+                  className={cn(
+                    "mt-0.5 shrink-0 transition-all",
+                    milestone.completed 
+                      ? "text-emerald-500 scale-110" 
+                      : "text-slate-600 hover:text-indigo-400 hover:scale-110"
+                  )}
+                  disabled={milestone.completed}
+                >
+                  {milestone.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}
+                </button>
+                <span className={cn(
+                  "text-sm truncate transition-colors",
+                  milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
+                )}>
+                  {milestone.title}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+        
+        <CardFooter className="pt-2 border-t border-white/5">
+          <div className="flex gap-2 w-full">
+            <Link to={`/roadmaps/${roadmap.id}`} className="flex-1">
+              <Button variant="secondary" className="w-full justify-between pr-3 group-hover:bg-slate-700">
+                View Full Path
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <button
+              onClick={() => onDelete(roadmap.id)}
+              className="p-3 rounded-xl border border-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }
 
