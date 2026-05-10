@@ -371,15 +371,27 @@ def get_roadmap_analytics(
 
     return analytics
 
+from app.services.profile_service import get_profile_by_user_id
+
 @router.post("/generate")
 def generate_ai_roadmap(
     goal_input: GoalInput,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    profile_model = get_profile_by_user_id(db, current_user.id)
+    profile_dict = None
+    if profile_model:
+        # Convert SQLAlchemy model to dict, exclude None values and internal keys
+        profile_dict = {
+            k: v for k, v in profile_model.__dict__.items()
+            if not k.startswith("_") and v is not None
+        }
+
     try:
         roadmap_data = generate_roadmap(
-            goal_input.goal
+            goal_input.goal,
+            profile=profile_dict
         )
     except AIGenerationError as e:
         raise HTTPException(

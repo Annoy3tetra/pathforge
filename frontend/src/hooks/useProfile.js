@@ -14,9 +14,8 @@ export function useProfile() {
     queryKey: profileKeys.profile,
     queryFn: async () => {
       const { data } = await API.get("/profile/me");
-      return data;
+      return data; // null when no profile exists
     },
-    retry: false, // 404 means profile doesn't exist yet — don't retry
   });
 }
 
@@ -27,7 +26,7 @@ export function useCreateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (profileData) => {
-      const { data } = await API.post("/profile/", profileData);
+      const { data } = await API.post("/profile", profileData);
       return data;
     },
     onSuccess: () => {
@@ -59,6 +58,25 @@ export function useUpdateProfile() {
       } else {
         toast.error(typeof detail === "string" ? detail : "Failed to save profile");
       }
+    },
+  });
+}
+
+/**
+ * Upload a profile image.
+ */
+export function useUploadProfileImage() {
+  return useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await API.post("/profile/image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data.url;
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.detail || "Failed to upload image");
     },
   });
 }

@@ -216,15 +216,45 @@ def _call_groq(prompt: str) -> str:
     return content
 
 
-def generate_roadmap(goal: str) -> dict:
+def generate_roadmap(goal: str, profile: dict = None) -> dict:
     """
     Generate a learning roadmap for the given goal.
-    Includes retry logic, response validation, and structured error handling.
+    Includes retry logic, response validation, structured error handling,
+    and profile-based personalization.
     """
-    prompt = f"""
-    Create a beginner-friendly learning roadmap for:
-    {goal}
+    
+    profile_context = ""
+    if profile:
+        # Build profile context string
+        context_parts = []
+        if profile.get("skill_level"):
+            context_parts.append(f"- Current Skill Level: {profile['skill_level']}")
+        if profile.get("education_level") or profile.get("field_of_study"):
+            edu = filter(None, [profile.get("education_level"), profile.get("field_of_study")])
+            context_parts.append(f"- Education Background: {' in '.join(edu)}")
+        if profile.get("career_goal"):
+            context_parts.append(f"- Career Goal: {profile['career_goal']}")
+        if profile.get("weekly_study_hours"):
+            context_parts.append(f"- Available Study Time: {profile['weekly_study_hours']} hours per week")
+        if profile.get("preferred_learning_style"):
+            context_parts.append(f"- Preferred Learning Style: {profile['preferred_learning_style']}")
+        if profile.get("interests"):
+            context_parts.append(f"- Interests: {', '.join(profile['interests'])}")
+            
+        if context_parts:
+            profile_context = "\n    USER PROFILE CONTEXT:\n    " + "\n    ".join(context_parts) + """
+            
+    Please personalize the roadmap based on this context:
+    - Adjust the 'estimated_days' for each milestone based on their available study hours and skill level.
+    - Tailor the complexity of the milestones to their skill level.
+    - If they have a preferred learning style, heavily prioritize resources of that type (e.g. video, article, course).
+    - Align the milestones with their career goals and interests where applicable.
+"""
 
+    prompt = f"""
+    Create a learning roadmap for:
+    {goal}
+{profile_context}
     Return ONLY valid JSON. No explanations, no markdown.
 
     Format:

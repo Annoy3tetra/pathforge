@@ -12,6 +12,8 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { RoadmapFeedbackBadge } from "../components/ui/RoadmapFeedbackBadge";
 
 import { useRoadmaps, useGenerateRoadmap, useCompleteMilestone, useDeleteRoadmap } from "../hooks/useRoadmaps";
+import { useProfile } from "../hooks/useProfile";
+import { InsightsCards } from "../components/ui/InsightsCards";
 
 // AI Loading Phrases
 const AI_PHRASES = [
@@ -38,9 +40,13 @@ function DashboardPage() {
 
   // TanStack Query hooks
   const { data: roadmaps = [], isLoading: initialLoad } = useRoadmaps();
+  const { data: profile } = useProfile();
+  
   const generateMutation = useGenerateRoadmap();
   const completeMutation = useCompleteMilestone();
   const deleteMutation = useDeleteRoadmap();
+  
+  const hasIncompleteProfile = !profile || !profile.skill_level || !profile.weekly_study_hours || !profile.career_goal;
 
   const loading = generateMutation.isPending;
 
@@ -190,10 +196,28 @@ function DashboardPage() {
                   </button>
                 ))}
               </div>
+              
+              <div className="mt-4 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                  Roadmaps are personalized using your profile.
+                </p>
+                {hasIncompleteProfile && (
+                  <Link 
+                    to="/profile" 
+                    className="text-xs bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 px-3 py-1.5 rounded-md font-medium transition-colors border border-indigo-500/20"
+                  >
+                    Complete Profile for Better AI
+                  </Link>
+                )}
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Learning Insights */}
+      {roadmaps.length > 0 && <InsightsCards />}
 
       {/* Roadmaps Grid */}
       <div className="mb-6 flex items-center justify-between">

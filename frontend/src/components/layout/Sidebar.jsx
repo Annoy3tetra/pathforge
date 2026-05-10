@@ -12,7 +12,7 @@ export function Sidebar({ isOpen, setIsOpen }) {
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "My Roadmaps", path: "/dashboard#roadmaps", icon: Map },
     { name: "Generate Roadmap", path: "/dashboard#generate", icon: PlusCircle },
-    { name: "Profile", path: "/dashboard#profile", icon: User },
+    { name: "Profile", path: "/profile", icon: User },
   ];
 
   const handleLogout = () => {

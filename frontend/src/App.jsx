@@ -13,6 +13,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import RoadmapDetailPage from "./pages/RoadmapDetailPage";
+import ProfilePage from "./pages/ProfilePage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -65,6 +66,14 @@ function App() {
               }
             />
 
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
 
         </BrowserRouter>
