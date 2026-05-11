@@ -26,7 +26,6 @@ export function Sidebar({ isOpen, setIsOpen }) {
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "My Roadmaps", path: "/dashboard#roadmaps", icon: Map },
     { name: "Generate", path: "/dashboard#generate", icon: PlusCircle },
-    { name: "Profile", path: "/profile", icon: User },
   ];
 
   const handleLogout = () => {
@@ -147,30 +146,14 @@ export function Sidebar({ isOpen, setIsOpen }) {
           })}
         </div>
 
-        {/* Footer Section */}
+        {/* Footer Section - Minimal */}
         <div className="p-4 border-t border-white/5 mt-auto">
-          <button
-            onClick={handleLogout}
-            className={cn(
-              "group relative flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-all duration-200 text-slate-400 hover:text-rose-400 hover:bg-rose-500/5",
-              isCollapsed && "justify-center"
-            )}
-          >
-            <LogOut className="h-5 w-5 shrink-0 group-hover:rotate-12 transition-transform" />
-            {!isCollapsed && (
-              <motion.span 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                Logout
-              </motion.span>
-            )}
-            {isCollapsed && (
-              <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity border border-slate-700 whitespace-nowrap z-50">
-                Logout
-              </div>
-            )}
-          </button>
+          <div className={cn(
+            "px-3 py-4 text-center",
+            isCollapsed && "hidden"
+          )}>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">PathForge v1.0</p>
+          </div>
         </div>
       </motion.div>
     </>

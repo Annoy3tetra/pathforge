@@ -160,16 +160,16 @@ function RoadmapDetailPage() {
           Back to Dashboard
         </Link>
 
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100 mb-4 leading-tight">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 mb-4 leading-[1.15] break-words">
               {roadmap.title}
             </h1>
-            <p className="text-lg md:text-xl text-slate-400 max-w-3xl leading-relaxed">
+            <p className="text-base md:text-lg text-slate-400 max-w-4xl leading-relaxed break-words">
               {roadmap.description}
             </p>
           </div>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-3 shrink-0 self-start sm:self-auto">
             <button
               onClick={() => {
                 setEditTitle(roadmap.title);

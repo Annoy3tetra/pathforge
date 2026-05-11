@@ -79,66 +79,78 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
         show: { opacity: 1, y: 0 }
       }}
     >
-      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30">
-        <CardHeader className="pb-4">
-          <div className="flex justify-between items-start gap-4 mb-2">
-            <CardTitle className="text-lg line-clamp-1 group-hover:text-indigo-400 transition-colors">
+      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30 transition-all duration-300">
+        <CardHeader className="pb-4 shrink-0">
+          <div className="flex justify-between items-start gap-4 mb-3">
+            <CardTitle className="text-lg font-bold line-clamp-2 group-hover:text-indigo-400 transition-colors leading-snug">
               {roadmap.title}
             </CardTitle>
-            <RoadmapFeedbackBadge roadmapId={roadmap.id} />
+            <div className="shrink-0 mt-1">
+              <RoadmapFeedbackBadge roadmapId={roadmap.id} />
+            </div>
           </div>
-          <CardDescription className="line-clamp-2 h-10">
+          <CardDescription className="line-clamp-2 text-sm min-h-[2.5rem] overflow-hidden">
             {roadmap.description || "Personalized learning curriculum for this goal."}
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="flex-1">
-          <div className="space-y-2 mb-6">
+        <CardContent className="flex-1 flex flex-col pt-2">
+          {/* Progress Section */}
+          <div className="space-y-2 mb-8">
             <div className="flex justify-between items-end text-sm">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Progress</span>
-              <span className="text-indigo-400 font-black">{progress}%</span>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress</span>
+              <span className="text-indigo-400 font-black tabular-nums">{progress}%</span>
             </div>
-            <ProgressBar progress={progress} className="h-1.5" />
+            <ProgressBar progress={progress} className="h-1.5 shadow-sm" />
           </div>
 
-          <div className="space-y-3">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Next Steps</h4>
-            {roadmap.milestones.slice(0, 3).map((milestone) => (
-              <div key={milestone.id} className="flex items-start gap-3 group/item">
-                <button 
-                  onClick={() => !milestone.completed && onComplete(milestone.id)}
-                  className={cn(
-                    "mt-0.5 shrink-0 transition-all",
-                    milestone.completed 
-                      ? "text-emerald-500 scale-110" 
-                      : "text-slate-600 hover:text-indigo-400 hover:scale-110"
-                  )}
-                  disabled={milestone.completed}
-                >
-                  {milestone.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}
-                </button>
-                <span className={cn(
-                  "text-sm truncate transition-colors",
-                  milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
-                )}>
-                  {milestone.title}
-                </span>
-              </div>
-            ))}
+          {/* Next Steps Section */}
+          <div className="space-y-4 flex-1">
+            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Next Milestones</h4>
+            <div className="space-y-3">
+              {roadmap.milestones.slice(0, 3).map((milestone) => (
+                <div key={milestone.id} className="flex items-start gap-3 group/item min-w-0">
+                  <button 
+                    onClick={() => !milestone.completed && onComplete(milestone.id)}
+                    className={cn(
+                      "mt-0.5 shrink-0 transition-all duration-300",
+                      milestone.completed 
+                        ? "text-emerald-500 scale-110" 
+                        : "text-slate-600 hover:text-indigo-400 hover:scale-110"
+                    )}
+                    disabled={milestone.completed}
+                  >
+                    {milestone.completed ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+                  </button>
+                  <span className={cn(
+                    "text-sm break-words line-clamp-1 transition-colors leading-tight flex-1",
+                    milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
+                  )}>
+                    {milestone.title}
+                  </span>
+                </div>
+              ))}
+              {roadmap.milestones.length > 3 && (
+                <p className="text-[10px] text-slate-500 font-bold italic ml-7">
+                  + {roadmap.milestones.length - 3} more steps
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
         
-        <CardFooter className="pt-2 border-t border-white/5">
-          <div className="flex gap-2 w-full">
-            <Link to={`/roadmaps/${roadmap.id}`} className="flex-1">
-              <Button variant="secondary" className="w-full justify-between pr-3 group-hover:bg-slate-700">
-                View Full Path
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        <CardFooter className="pt-4 border-t border-white/5 shrink-0">
+          <div className="flex gap-2 w-full items-center">
+            <Link to={`/roadmaps/${roadmap.id}`} className="flex-1 min-w-0">
+              <Button variant="secondary" className="w-full justify-between pr-3 group-hover:bg-slate-700/50 transition-colors h-10">
+                <span className="truncate">View Path</span>
+                <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
             <button
               onClick={() => onDelete(roadmap.id)}
-              className="p-3 rounded-xl border border-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all"
+              className="p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all"
+              title="Delete roadmap"
             >
               <Trash2 className="h-4 w-4" />
             </button>
