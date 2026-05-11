@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { 
@@ -16,7 +16,7 @@ import { ProgressBar } from "../ui/ProgressBar";
 import { RoadmapFeedbackBadge } from "../roadmap/RoadmapFeedbackBadge";
 import { cn } from "../../lib/utils";
 
-export function RoadmapGrid({ roadmaps, handleDelete, handleComplete }) {
+export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete }) => {
   if (roadmaps.length === 0) {
     return (
       <Card className="py-24 text-center border-dashed border-2 bg-transparent">
@@ -51,7 +51,7 @@ export function RoadmapGrid({ roadmaps, handleDelete, handleComplete }) {
         initial="hidden"
         animate="show"
         variants={{
-          show: { transition: { staggerChildren: 0.1 } }
+          show: { transition: { staggerChildren: 0.05 } }
         }}
       >
         {roadmaps.map((roadmap) => (
@@ -65,9 +65,9 @@ export function RoadmapGrid({ roadmaps, handleDelete, handleComplete }) {
       </motion.div>
     </section>
   );
-}
+});
 
-function RoadmapCard({ roadmap, onDelete, onComplete }) {
+const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
   const total = roadmap.milestones.length;
   const completed = roadmap.milestones.filter((m) => m.completed).length;
   const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -75,7 +75,7 @@ function RoadmapCard({ roadmap, onDelete, onComplete }) {
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 10 },
         show: { opacity: 1, y: 0 }
       }}
     >
@@ -147,4 +147,4 @@ function RoadmapCard({ roadmap, onDelete, onComplete }) {
       </Card>
     </motion.div>
   );
-}
+});

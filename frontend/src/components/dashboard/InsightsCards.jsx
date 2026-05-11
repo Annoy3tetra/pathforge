@@ -1,10 +1,12 @@
+import React, { memo } from "react";
 import { useInsights } from "../../hooks/useInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Activity, Target, Zap, Lightbulb } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 import { motion } from "framer-motion";
+import { cn } from "../../lib/utils";
 
-export function InsightsCards() {
+export const InsightsCards = memo(() => {
   const { data: insights, isLoading } = useInsights();
 
   if (isLoading) {
@@ -24,7 +26,7 @@ export function InsightsCards() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05
       }
     }
   };
@@ -92,7 +94,7 @@ export function InsightsCards() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
         >
           <Card className="border-indigo-500/10 bg-indigo-500/5">
             <CardHeader className="pb-4 border-b border-white/5 mb-6">
@@ -129,4 +131,4 @@ export function InsightsCards() {
       )}
     </div>
   );
-}
+});

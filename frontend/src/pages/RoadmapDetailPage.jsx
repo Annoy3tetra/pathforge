@@ -70,17 +70,16 @@ function RoadmapDetailPage() {
     }
   }, [roadmap]);
 
-  const toggleMilestone = (id) => {
-    const newExpanded = new Set(expandedMilestones);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
-    setExpandedMilestones(newExpanded);
-  };
+  const toggleMilestone = useCallback((id) => {
+    setExpandedMilestones(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
-  const handleComplete = async (milestoneId) => {
+  const handleComplete = useCallback(async (milestoneId) => {
     try {
       setCompletingId(milestoneId);
       await completeMutation.mutateAsync(milestoneId);
@@ -99,7 +98,7 @@ function RoadmapDetailPage() {
     } finally {
       setCompletingId(null);
     }
-  };
+  }, [completeMutation]);
 
   // --- Loading skeleton ---
   if (isLoading) {
@@ -140,12 +139,17 @@ function RoadmapDetailPage() {
   }
 
   // --- Derived values ---
-  const total = roadmap.milestones.length;
-  const completed = roadmap.milestones.filter((m) => m.completed).length;
-  const remaining = total - completed;
-  const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
-  const totalDays = roadmap.milestones.reduce((acc, curr) => acc + curr.estimated_days, 0);
-  const remainingDays = roadmap.milestones.filter(m => !m.completed).reduce((acc, curr) => acc + curr.estimated_days, 0);
+  const { total, completed, progress, totalDays, remainingDays } = useMemo(() => {
+    if (!roadmap) return { total: 0, completed: 0, progress: 0, totalDays: 0, remainingDays: 0 };
+    
+    const total = roadmap.milestones.length;
+    const completed = roadmap.milestones.filter((m) => m.completed).length;
+    const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+    const totalDays = roadmap.milestones.reduce((acc, curr) => acc + curr.estimated_days, 0);
+    const remainingDays = roadmap.milestones.filter(m => !m.completed).reduce((acc, curr) => acc + curr.estimated_days, 0);
+    
+    return { total, completed, progress, totalDays, remainingDays };
+  }, [roadmap]);
 
   return (
     <DashboardLayout title="Roadmap Details">

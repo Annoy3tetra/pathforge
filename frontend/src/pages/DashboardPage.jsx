@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 
@@ -20,14 +21,14 @@ function DashboardPage() {
   const completeMutation = useCompleteMilestone();
   const deleteMutation = useDeleteRoadmap();
 
-  const handleComplete = (milestoneId) => {
+  const handleComplete = useCallback((milestoneId) => {
     completeMutation.mutate(milestoneId);
-  };
+  }, [completeMutation]);
 
-  const handleDelete = (roadmapId) => {
+  const handleDelete = useCallback((roadmapId) => {
     if (!window.confirm("Are you sure you want to delete this roadmap?")) return;
     deleteMutation.mutate(roadmapId);
-  };
+  }, [deleteMutation]);
 
   if (initialLoad) {
     return (

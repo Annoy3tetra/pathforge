@@ -7,9 +7,10 @@ export function Card({ children, className = "", animate = false, ...props }) {
   
   return (
     <Component 
-      whileHover={animate ? { y: -4, shadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" } : {}}
+      whileHover={animate ? { y: -2 } : {}}
       className={cn(
         "glass rounded-2xl overflow-hidden transition-all duration-300",
+        animate && "hover:shadow-xl hover:shadow-indigo-500/10",
         className
       )} 
       {...props}

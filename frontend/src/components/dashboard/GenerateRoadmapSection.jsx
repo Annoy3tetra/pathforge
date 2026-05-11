@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { 
@@ -29,7 +29,7 @@ const SUGGESTED_GOALS = [
   "Mobile Apps"
 ];
 
-export function GenerateRoadmapSection({ generateMutation, profile }) {
+export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
   const [goal, setGoal] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [generationError, setGenerationError] = useState(null);
@@ -191,4 +191,4 @@ export function GenerateRoadmapSection({ generateMutation, profile }) {
       </Card>
     </section>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { 
   CheckCircle2, 
   Calendar, 
@@ -9,18 +9,18 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "../ui/Card";
 
-export function RoadmapAnalytics({ 
+export const RoadmapAnalytics = memo(({ 
   analytics, 
   progress, 
   completed, 
   total, 
   remainingDays, 
   totalDays 
-}) {
+}) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
       {/* Progress */}
-      <Card className="bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/50 transition-colors">
+      <Card className="bg-slate-900/40 border-slate-800/40 hover:bg-slate-800/40 transition-colors">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
             <TrendingUp className="h-5 w-5" />
@@ -33,7 +33,7 @@ export function RoadmapAnalytics({
       </Card>
 
       {/* Completed */}
-      <Card className="bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/50 transition-colors">
+      <Card className="bg-slate-900/40 border-slate-800/40 hover:bg-slate-800/40 transition-colors">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
             <CheckCircle2 className="h-5 w-5" />
@@ -46,7 +46,7 @@ export function RoadmapAnalytics({
       </Card>
 
       {/* Remaining Days */}
-      <Card className="bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/50 transition-colors">
+      <Card className="bg-slate-900/40 border-slate-800/40 hover:bg-slate-800/40 transition-colors">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
             <Calendar className="h-5 w-5" />
@@ -59,7 +59,7 @@ export function RoadmapAnalytics({
       </Card>
 
       {/* Avg Speed */}
-      <Card className="bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/50 transition-colors">
+      <Card className="bg-slate-900/40 border-slate-800/40 hover:bg-slate-800/40 transition-colors">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
             <Zap className="h-5 w-5" />
@@ -75,7 +75,7 @@ export function RoadmapAnalytics({
       </Card>
 
       {/* Est. Finish */}
-      <Card className="bg-slate-900/50 border-slate-800/60 hover:bg-slate-800/50 transition-colors">
+      <Card className="bg-slate-900/40 border-slate-800/40 hover:bg-slate-800/40 transition-colors">
         <CardContent className="p-4 flex items-center gap-4">
           <div className="h-10 w-10 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
             <CalendarCheck className="h-5 w-5" />
@@ -88,8 +88,8 @@ export function RoadmapAnalytics({
       </Card>
 
       {/* Overdue */}
-      <Card className={`border-slate-800/60 transition-colors ${
-        analytics?.overdue_milestones?.length > 0 ? "bg-rose-950/20 border-rose-500/30" : "bg-slate-900/50 hover:bg-slate-800/50"
+      <Card className={`border-slate-800/40 transition-colors ${
+        analytics?.overdue_milestones?.length > 0 ? "bg-rose-950/20 border-rose-500/30" : "bg-slate-900/40 hover:bg-slate-800/40"
       }`}>
         <CardContent className="p-4 flex items-center gap-4">
           <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
@@ -105,4 +105,4 @@ export function RoadmapAnalytics({
       </Card>
     </div>
   );
-}
+});

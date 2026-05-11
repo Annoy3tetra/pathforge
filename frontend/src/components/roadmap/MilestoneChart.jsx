@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export function MilestoneChart({ data }) {
+export const MilestoneChart = memo(({ data }) => {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-slate-500 text-sm font-medium italic">
@@ -87,4 +87,4 @@ export function MilestoneChart({ data }) {
       </LineChart>
     </ResponsiveContainer>
   );
-}
+});
