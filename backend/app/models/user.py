@@ -36,4 +36,11 @@ class User(Base):
         back_populates="user",
         uselist=False,
         cascade="all, delete"
-    )
+    )
+
+    forge_profile = relationship(
+        "ForgeProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete"
+    )

@@ -229,6 +229,8 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
         context_parts = []
         if profile.get("skill_level"):
             context_parts.append(f"- Current Skill Level: {profile['skill_level']}")
+        if profile.get("current_skill_level"):
+            context_parts.append(f"- ForgeProfile Skill Level: {profile['current_skill_level']}")
         if profile.get("education_level") or profile.get("field_of_study"):
             edu = filter(None, [profile.get("education_level"), profile.get("field_of_study")])
             context_parts.append(f"- Education Background: {' in '.join(edu)}")
@@ -238,6 +240,22 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
             context_parts.append(f"- Available Study Time: {profile['weekly_study_hours']} hours per week")
         if profile.get("preferred_learning_style"):
             context_parts.append(f"- Preferred Learning Style: {profile['preferred_learning_style']}")
+        if profile.get("preferred_resource_format"):
+            context_parts.append(f"- Preferred Resource Format: {profile['preferred_resource_format']}")
+        if profile.get("preferred_domains"):
+            context_parts.append(f"- Preferred Domains: {', '.join(profile['preferred_domains'])}")
+        if profile.get("biggest_learning_struggle"):
+            context_parts.append(f"- Biggest Learning Struggle: {profile['biggest_learning_struggle']}")
+        if profile.get("motivation_type"):
+            context_parts.append(f"- Motivation Type: {profile['motivation_type']}")
+        if profile.get("preferred_project_type"):
+            context_parts.append(f"- Preferred Project Type: {profile['preferred_project_type']}")
+        if profile.get("confidence_level"):
+            context_parts.append(f"- Confidence Level: {profile['confidence_level']}/10")
+        if profile.get("target_timeline"):
+            context_parts.append(f"- Target Timeline: {profile['target_timeline']}")
+        if profile.get("current_focus"):
+            context_parts.append(f"- Current Focus: {profile['current_focus']}")
         if profile.get("interests"):
             context_parts.append(f"- Interests: {', '.join(profile['interests'])}")
             
@@ -249,6 +267,9 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
     - Tailor the complexity of the milestones to their skill level.
     - If they have a preferred learning style, heavily prioritize resources of that type (e.g. video, article, course).
     - Align the milestones with their career goals and interests where applicable.
+    - Address their biggest struggle directly with milestone design and descriptions.
+    - Prefer project work that matches their preferred project type.
+    - Keep the roadmap realistic for their target timeline and confidence level.
 """
 
     prompt = f"""

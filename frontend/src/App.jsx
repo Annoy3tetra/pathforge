@@ -19,6 +19,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const RoadmapDetailPage = lazy(() => import("./pages/RoadmapDetailPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const ForgeProfilePage = lazy(() => import("./pages/ForgeProfilePage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +80,15 @@ function AnimatedRoutes() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/forge-profile"
+            element={
+              <ProtectedRoute>
+                <ForgeProfilePage />
               </ProtectedRoute>
             }
           />

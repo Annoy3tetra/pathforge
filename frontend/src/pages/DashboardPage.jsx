@@ -11,6 +11,7 @@ import { useProfile } from "../hooks/useProfile";
 import { InsightsCards } from "../components/dashboard/InsightsCards";
 import { GenerateRoadmapSection } from "../components/dashboard/GenerateRoadmapSection";
 import { RoadmapGrid } from "../components/dashboard/RoadmapGrid";
+import { ForgeRecommendations } from "../components/dashboard/ForgeRecommendations";
 
 function DashboardPage() {
   const { data: roadmaps = [], isLoading: initialLoad } = useRoadmaps();
@@ -57,6 +58,8 @@ function DashboardPage() {
         generateMutation={generateMutation} 
         profile={profile} 
       />
+
+      <ForgeRecommendations />
 
       {roadmaps.length > 0 && (
           <section className="mb-12">

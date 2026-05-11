@@ -10,6 +10,14 @@ export const ENDPOINTS = {
     IMAGE: "/profile/image",
     INSIGHTS: "/profile/insights",
   },
+  FORGE_PROFILE: {
+    BASE: "/forge-profile",
+    ME: "/forge-profile/me",
+    ANALYSIS: "/forge-profile/analysis",
+  },
+  RECOMMENDATIONS: {
+    ME: "/recommendations/me",
+  },
   ROADMAPS: {
     BASE: "/roadmaps",
     GENERATE: "/roadmaps/generate",

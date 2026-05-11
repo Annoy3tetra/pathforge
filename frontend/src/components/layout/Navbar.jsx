@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { LogOut, User, Menu, ChevronDown, Settings, CreditCard } from "lucide-react";
+import { Brain, LogOut, User, Menu, ChevronDown, Settings, CreditCard } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -112,6 +112,14 @@ export const Navbar = memo(({ title, onMenuClick }) => {
                 >
                   <User className="h-4 w-4 text-indigo-400" />
                   <span className="text-sm font-medium">My Profile</span>
+                </Link>
+                <Link
+                  to="/forge-profile"
+                  onClick={closeDropdown}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-indigo-500/10 transition-colors"
+                >
+                  <Brain className="h-4 w-4 text-indigo-400" />
+                  <span className="text-sm font-medium">ForgeProfile</span>
                 </Link>
                 <button 
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-left"

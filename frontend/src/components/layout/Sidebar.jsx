@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { 
   Compass, 
+  Brain,
   LayoutDashboard, 
   Map, 
   PlusCircle, 
@@ -53,6 +54,7 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
   
   const navItems = useMemo(() => [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "ForgeProfile", path: "/forge-profile", icon: Brain },
     { name: "My Roadmaps", path: "/dashboard#roadmaps", icon: Map },
     { name: "Generate", path: "/dashboard#generate", icon: PlusCircle },
   ], []);

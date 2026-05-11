@@ -91,6 +91,26 @@ def get_user_roadmaps(
     return roadmaps
 
 
+@router.get("/{roadmap_id}", response_model=RoadmapResponse)
+def get_user_roadmap(
+    roadmap_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.id == roadmap_id,
+        Roadmap.owner_id == current_user.id
+    ).first()
+
+    if not roadmap:
+        raise HTTPException(
+            status_code=404,
+            detail="Roadmap not found"
+        )
+
+    return roadmap
+
+
 @router.put("/milestones/{milestone_id}/complete")
 def complete_milestone(
     milestone_id: int,
@@ -372,6 +392,8 @@ def get_roadmap_analytics(
     return analytics
 
 from app.services.profile_service import get_profile_by_user_id
+from app.services.forge_profile_service import get_forge_profile_by_user_id
+from app.services.profile_analysis_service import forge_profile_to_dict
 
 @router.post("/generate")
 def generate_ai_roadmap(
@@ -386,6 +408,14 @@ def generate_ai_roadmap(
         profile_dict = {
             k: v for k, v in profile_model.__dict__.items()
             if not k.startswith("_") and v is not None
+        }
+    forge_profile = get_forge_profile_by_user_id(db, current_user.id)
+    forge_profile_dict = forge_profile_to_dict(forge_profile)
+    if forge_profile_dict:
+        profile_dict = {
+            **(profile_dict or {}),
+            **forge_profile_dict,
+            "forge_profile_enabled": True,
         }
 
     try:

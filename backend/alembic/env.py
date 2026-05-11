@@ -33,6 +33,7 @@ from app.models.roadmap import Roadmap
 from app.models.milestone import Milestone
 from app.models.resource import Resource
 from app.models.user_profile import UserProfile
+from app.models.forge_profile import ForgeProfile
 
 target_metadata = Base.metadata
 
