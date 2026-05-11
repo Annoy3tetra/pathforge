@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import { ENDPOINTS } from "../api/endpoints";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ function LoginPage() {
       params.append("username", formData.email);
       params.append("password", formData.password);
 
-      const response = await API.post("/auth/login", params, {
+      const response = await API.post(ENDPOINTS.AUTH.LOGIN, params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },

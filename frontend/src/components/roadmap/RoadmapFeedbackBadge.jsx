@@ -22,8 +22,8 @@ export function RoadmapFeedbackBadge({ roadmapId }) {
   }
 
   return (
-    <div className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${colorClass}`}>
-      <Activity className="mr-1 h-3 w-3" />
+    <div className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] border shadow-lg shadow-black/20 ${colorClass}`}>
+      <Activity className="mr-1.5 h-3 w-3" />
       {status}
     </div>
   );

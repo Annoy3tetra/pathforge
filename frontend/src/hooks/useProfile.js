@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import { ENDPOINTS } from "../api/endpoints";
 
 export const profileKeys = {
   profile: ["profile"],
@@ -13,7 +14,7 @@ export function useProfile() {
   return useQuery({
     queryKey: profileKeys.profile,
     queryFn: async () => {
-      const { data } = await API.get("/profile/me");
+      const { data } = await API.get(ENDPOINTS.PROFILE.ME);
       return data; // null when no profile exists
     },
   });
@@ -26,7 +27,7 @@ export function useCreateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (profileData) => {
-      const { data } = await API.post("/profile", profileData);
+      const { data } = await API.post(ENDPOINTS.PROFILE.BASE, profileData);
       return data;
     },
     onSuccess: () => {
@@ -44,7 +45,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (profileData) => {
-      const { data } = await API.put("/profile/me", profileData);
+      const { data } = await API.put(ENDPOINTS.PROFILE.ME, profileData);
       return data;
     },
     onSuccess: () => {
@@ -70,7 +71,7 @@ export function useUploadProfileImage() {
     mutationFn: async (file) => {
       const formData = new FormData();
       formData.append("file", file);
-      const { data } = await API.post("/profile/image", formData);
+      const { data } = await API.post(ENDPOINTS.PROFILE.IMAGE, formData);
       return data.url;
     },
     onError: (err) => {

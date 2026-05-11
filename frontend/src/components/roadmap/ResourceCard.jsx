@@ -1,5 +1,6 @@
 import React from "react";
 import { ExternalLink, Video, FileText, GraduationCap, BookOpen } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 const TYPE_CONFIG = {
   video: {
@@ -39,22 +40,26 @@ export function ResourceCard({ resource }) {
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02] hover:shadow-md group ${config.color} bg-opacity-5 border-opacity-30 hover:bg-opacity-10`}
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 group glass hover:border-white/20",
+        config.color,
+        "bg-opacity-5"
+      )}
     >
-      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${config.badge}`}>
-        <Icon className="h-4 w-4" />
+      <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner", config.badge)}>
+        <Icon className="h-5 w-5" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-200 truncate group-hover:text-white transition-colors">
+        <p className="text-sm font-bold text-slate-100 truncate group-hover:text-white transition-colors">
           {resource.title}
         </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${config.badge} px-1.5 py-0.5 rounded`}>
+        <div className="flex items-center gap-2 mt-1">
+          <span className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg", config.badge)}>
             {resource.type}
           </span>
           {resource.difficulty && (
-            <span className={`text-[10px] font-medium capitalize ${DIFFICULTY_COLORS[resource.difficulty] || "text-slate-400"}`}>
+            <span className={cn("text-[10px] font-bold uppercase tracking-widest", DIFFICULTY_COLORS[resource.difficulty] || "text-slate-500")}>
               {resource.difficulty}
             </span>
           )}
@@ -73,14 +78,16 @@ export function ResourceList({ resources, filter }) {
 
   if (filtered.length === 0) {
     return (
-      <p className="text-xs text-slate-500 italic py-2">
-        No {filter === "all" ? "" : filter + " "}resources for this milestone.
-      </p>
+      <div className="py-4 text-center">
+        <p className="text-xs text-slate-500 font-medium italic">
+          No {filter === "all" ? "" : filter + " "}resources found for this milestone.
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-2 mt-3">
+    <div className="space-y-3 mt-4">
       {filtered.map((resource) => (
         <ResourceCard key={resource.id} resource={resource} />
       ))}

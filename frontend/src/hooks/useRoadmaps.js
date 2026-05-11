@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import { ENDPOINTS } from "../api/endpoints";
 
 // ──────────────────────────────────────
 // Query Keys — centralized for cache invalidation
@@ -23,24 +24,23 @@ export function useRoadmaps() {
   return useQuery({
     queryKey: queryKeys.roadmaps,
     queryFn: async () => {
-      const { data } = await API.get("/roadmaps/");
+      const { data } = await API.get(ENDPOINTS.ROADMAPS.BASE);
       return data;
     },
   });
 }
 
 /**
- * Fetch a single roadmap by ID (derived from the roadmaps list).
+ * Fetch a single roadmap by ID.
  */
 export function useRoadmap(roadmapId) {
   return useQuery({
     queryKey: queryKeys.roadmap(roadmapId),
     queryFn: async () => {
-      const { data } = await API.get("/roadmaps/");
-      const roadmap = data.find((r) => r.id === Number(roadmapId));
-      if (!roadmap) throw new Error("Roadmap not found");
-      return roadmap;
+      const { data } = await API.get(ENDPOINTS.ROADMAPS.DETAIL(roadmapId));
+      return data;
     },
+    enabled: !!roadmapId,
   });
 }
 
@@ -51,7 +51,7 @@ export function useFeedback(roadmapId) {
   return useQuery({
     queryKey: queryKeys.feedback(roadmapId),
     queryFn: async () => {
-      const { data } = await API.get(`/roadmaps/${roadmapId}/feedback`);
+      const { data } = await API.get(ENDPOINTS.ROADMAPS.FEEDBACK(roadmapId));
       return data;
     },
     enabled: !!roadmapId,
@@ -65,7 +65,7 @@ export function useAnalytics(roadmapId) {
   return useQuery({
     queryKey: queryKeys.analytics(roadmapId),
     queryFn: async () => {
-      const { data } = await API.get(`/roadmaps/${roadmapId}/analytics`);
+      const { data } = await API.get(ENDPOINTS.ROADMAPS.ANALYTICS(roadmapId));
       return data;
     },
     enabled: !!roadmapId,
@@ -83,7 +83,7 @@ export function useGenerateRoadmap() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (goal) => {
-      const { data } = await API.post("/roadmaps/generate", { goal });
+      const { data } = await API.post(ENDPOINTS.ROADMAPS.GENERATE, { goal });
       return data;
     },
     onSuccess: () => {
@@ -94,7 +94,7 @@ export function useGenerateRoadmap() {
       const detail = error.response?.data?.detail;
       const msg = typeof detail === "object" ? detail.error : "Generation failed. Please try again.";
       toast.error(msg);
-      throw error; // re-throw so caller can access the error
+      throw error;
     },
   });
 }
@@ -106,7 +106,7 @@ export function useDeleteRoadmap() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (roadmapId) => {
-      await API.delete(`/roadmaps/${roadmapId}`);
+      await API.delete(ENDPOINTS.ROADMAPS.DELETE(roadmapId));
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.roadmaps });
@@ -123,7 +123,7 @@ export function useUpdateRoadmap() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ roadmapId, updates }) => {
-      await API.put(`/roadmaps/${roadmapId}`, updates);
+      await API.put(ENDPOINTS.ROADMAPS.UPDATE(roadmapId), updates);
     },
     onSuccess: (_, { roadmapId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.roadmap(roadmapId) });
@@ -140,7 +140,7 @@ export function useCompleteMilestone() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (milestoneId) => {
-      const { data } = await API.put(`/roadmaps/milestones/${milestoneId}/complete`);
+      const { data } = await API.put(ENDPOINTS.ROADMAPS.MILESTONE_COMPLETE(milestoneId));
       return data;
     },
     onSuccess: () => {
@@ -158,7 +158,7 @@ export function useUpdateMilestone() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ milestoneId, updates }) => {
-      await API.put(`/roadmaps/milestones/${milestoneId}`, updates);
+      await API.put(ENDPOINTS.ROADMAPS.MILESTONE(milestoneId), updates);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.roadmaps });
@@ -175,7 +175,7 @@ export function useDeleteMilestone() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (milestoneId) => {
-      await API.delete(`/roadmaps/milestones/${milestoneId}`);
+      await API.delete(ENDPOINTS.ROADMAPS.MILESTONE(milestoneId));
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.roadmaps });
@@ -192,7 +192,7 @@ export function useAddMilestone() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ roadmapId, milestone }) => {
-      const { data } = await API.post(`/roadmaps/${roadmapId}/milestones`, milestone);
+      const { data } = await API.post(ENDPOINTS.ROADMAPS.MILESTONES(roadmapId), milestone);
       return data;
     },
     onSuccess: () => {

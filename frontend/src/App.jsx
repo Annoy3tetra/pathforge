@@ -50,7 +50,7 @@ function AnimatedRoutes() {
           path="/roadmaps/:roadmapId"
           element={
             <ProtectedRoute>
-              <RoadmapDetailPage element={<RoadmapDetailPage />} />
+              <RoadmapDetailPage />
             </ProtectedRoute>
           }
         />

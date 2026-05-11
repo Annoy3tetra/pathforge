@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import { ENDPOINTS } from "../api/endpoints";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await API.post("/auth/register", formData);
+      await API.post(ENDPOINTS.AUTH.REGISTER, formData);
       toast.success("Registration successful");
       navigate("/login");
     } catch (error) {
