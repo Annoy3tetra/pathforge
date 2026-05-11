@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { cn } from "../../lib/utils";
 
 export const Input = forwardRef(({ className = "", type = "text", ...props }, ref) => {

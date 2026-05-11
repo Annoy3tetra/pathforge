@@ -1,10 +1,8 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { useInsights } from "../../hooks/useInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Activity, Target, Zap, Lightbulb } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
-import { motion } from "framer-motion";
-import { cn } from "../../lib/utils";
 
 export const InsightsCards = memo(() => {
   const { data: insights, isLoading } = useInsights();
@@ -21,30 +19,10 @@ export const InsightsCards = memo(() => {
 
   if (!insights) return null;
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
     <div className="mb-12 space-y-8">
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        <motion.div variants={item}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
           <Card className="h-full border-amber-500/10">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
@@ -57,9 +35,9 @@ export const InsightsCards = memo(() => {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <Card className="h-full border-emerald-500/10">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
@@ -72,9 +50,9 @@ export const InsightsCards = memo(() => {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <Card className="h-full border-indigo-500/10">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
@@ -87,15 +65,11 @@ export const InsightsCards = memo(() => {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {insights.suggestions && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div>
           <Card className="border-indigo-500/10 bg-indigo-500/5">
             <CardHeader className="pb-4 border-b border-white/5 mb-6">
               <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -127,7 +101,7 @@ export const InsightsCards = memo(() => {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
     </div>
   );

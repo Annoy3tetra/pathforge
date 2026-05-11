@@ -13,6 +13,27 @@ export const queryKeys = {
   analytics: (id) => ["roadmaps", id, "analytics"],
 };
 
+function markMilestoneCompleteInRoadmap(roadmap, milestoneId) {
+  if (!roadmap?.milestones) return roadmap;
+
+  let changed = false;
+  const milestones = roadmap.milestones.map((milestone) => {
+    if (milestone.id !== milestoneId || milestone.completed) return milestone;
+    changed = true;
+    return { ...milestone, completed: true };
+  });
+
+  return changed ? { ...roadmap, milestones } : roadmap;
+}
+
+function markMilestoneComplete(data, milestoneId) {
+  if (Array.isArray(data)) {
+    return data.map((roadmap) => markMilestoneCompleteInRoadmap(roadmap, milestoneId));
+  }
+
+  return markMilestoneCompleteInRoadmap(data, milestoneId);
+}
+
 // ──────────────────────────────────────
 // Queries
 // ──────────────────────────────────────
@@ -143,11 +164,27 @@ export function useCompleteMilestone() {
       const { data } = await API.put(ENDPOINTS.ROADMAPS.MILESTONE_COMPLETE(milestoneId));
       return data;
     },
+    onMutate: async (milestoneId) => {
+      await qc.cancelQueries({ queryKey: queryKeys.roadmaps });
+      const previousRoadmaps = qc.getQueryData(queryKeys.roadmaps);
+
+      // Optimistic cache patch keeps milestone clicks responsive without refetching the whole dashboard first.
+      qc.setQueriesData({ queryKey: queryKeys.roadmaps }, (oldData) => (
+        markMilestoneComplete(oldData, milestoneId)
+      ));
+
+      return { previousRoadmaps };
+    },
+    onError: (_error, _milestoneId, context) => {
+      if (context?.previousRoadmaps) {
+        qc.setQueryData(queryKeys.roadmaps, context.previousRoadmaps);
+      }
+      toast.error("Failed to update milestone");
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.roadmaps });
+      qc.invalidateQueries({ queryKey: queryKeys.roadmaps, refetchType: "inactive" });
       toast.success("Milestone completed!");
     },
-    onError: () => toast.error("Failed to update milestone"),
   });
 }
 

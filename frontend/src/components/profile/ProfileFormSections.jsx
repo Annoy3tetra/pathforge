@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { memo, useCallback, useState } from "react";
 import { 
   User, GraduationCap, Sparkles, Globe, Heart, 
   X, Code2, Link2, ExternalLink 
@@ -13,7 +12,7 @@ const LEARNING_STYLES = ["visual", "reading", "hands-on", "video", "mixed"];
 
 // ─── Shared Components ───
 
-export function Field({ label, hint, children }) {
+export const Field = memo(function Field({ label, hint, children }) {
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center px-1">
@@ -23,9 +22,9 @@ export function Field({ label, hint, children }) {
       {children}
     </div>
   );
-}
+});
 
-export function ReadField({ label, value }) {
+export const ReadField = memo(function ReadField({ label, value }) {
   return (
     <div className="space-y-1">
       <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{label}</p>
@@ -34,12 +33,12 @@ export function ReadField({ label, value }) {
       </p>
     </div>
   );
-}
+});
 
-function TagInput({ tags, setTags, placeholder }) {
+const TagInput = memo(function TagInput({ tags, setTags, placeholder }) {
   const [input, setInput] = useState("");
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if ((e.key === "Enter" || e.key === ",") && input.trim()) {
       e.preventDefault();
       if (!tags.includes(input.trim())) {
@@ -50,14 +49,12 @@ function TagInput({ tags, setTags, placeholder }) {
     if (e.key === "Backspace" && !input && tags.length > 0) {
       setTags(tags.slice(0, -1));
     }
-  };
+  }, [input, setTags, tags]);
 
   return (
     <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-slate-700 bg-slate-900/50 min-h-[50px] focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all shadow-inner">
       {tags.map((tag, i) => (
-        <motion.span
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+        <span
           key={i}
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 text-xs font-bold border border-indigo-500/20"
         >
@@ -69,7 +66,7 @@ function TagInput({ tags, setTags, placeholder }) {
           >
             <X className="h-3 w-3" />
           </button>
-        </motion.span>
+        </span>
       ))}
       <input
         value={input}
@@ -80,11 +77,11 @@ function TagInput({ tags, setTags, placeholder }) {
       />
     </div>
   );
-}
+});
 
 // ─── Sections ───
 
-export function IdentitySection({ isEditing, form, handleChange }) {
+export const IdentitySection = memo(function IdentitySection({ isEditing, form, handleChange }) {
   return (
     <Card className="border-indigo-500/5">
       <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 mb-6">
@@ -114,9 +111,9 @@ export function IdentitySection({ isEditing, form, handleChange }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-export function AcademicSection({ isEditing, form, handleChange }) {
+export const AcademicSection = memo(function AcademicSection({ isEditing, form, handleChange }) {
   return (
     <Card className="border-purple-500/5">
       <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 mb-6">
@@ -146,9 +143,9 @@ export function AcademicSection({ isEditing, form, handleChange }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-export function LearningStyleSection({ isEditing, form, handleChange }) {
+export const LearningStyleSection = memo(function LearningStyleSection({ isEditing, form, handleChange }) {
   return (
     <Card className="border-amber-500/5">
       <CardHeader className="border-b border-white/5 mb-6">
@@ -186,9 +183,9 @@ export function LearningStyleSection({ isEditing, form, handleChange }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-export function SocialSection({ isEditing, form, handleChange }) {
+export const SocialSection = memo(function SocialSection({ isEditing, form, handleChange }) {
   return (
     <Card className="border-cyan-500/5">
       <CardHeader className="border-b border-white/5 mb-6">
@@ -217,9 +214,9 @@ export function SocialSection({ isEditing, form, handleChange }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-export function InterestsSection({ isEditing, form, handleChange }) {
+export const InterestsSection = memo(function InterestsSection({ isEditing, form, handleChange }) {
   return (
     <Card className="lg:col-span-12 border-rose-500/5">
       <CardHeader className="border-b border-white/5 mb-6">
@@ -252,9 +249,9 @@ export function InterestsSection({ isEditing, form, handleChange }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-function SocialLink({ url, icon: Icon, label }) {
+const SocialLink = memo(function SocialLink({ url, icon: Icon, label }) {
   if (!url) return null;
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all group">
@@ -265,4 +262,4 @@ function SocialLink({ url, icon: Icon, label }) {
       <ExternalLink size={14} className="text-slate-600 group-hover:text-indigo-400 transition-colors" />
     </a>
   );
-}
+});

@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Skeleton } from "../components/ui/Skeleton";
@@ -33,6 +32,29 @@ const EMPTY_FORM = {
   portfolio_url: "",
 };
 
+function profileToForm(profile) {
+  if (!profile) return EMPTY_FORM;
+
+  return {
+    display_name: profile.display_name || "",
+    bio: profile.bio || "",
+    profile_image: profile.profile_image || "",
+    education_level: profile.education_level || "",
+    college_name: profile.college_name || "",
+    field_of_study: profile.field_of_study || "",
+    current_year: profile.current_year || "",
+    skill_level: profile.skill_level || "",
+    career_goal: profile.career_goal || "",
+    interests: profile.interests || [],
+    hobbies: profile.hobbies || [],
+    weekly_study_hours: profile.weekly_study_hours || "",
+    preferred_learning_style: profile.preferred_learning_style || "",
+    github_url: profile.github_url || "",
+    linkedin_url: profile.linkedin_url || "",
+    portfolio_url: profile.portfolio_url || "",
+  };
+}
+
 function ProfilePage() {
   const { data: profile, isLoading, isError } = useProfile();
   const createMutation = useCreateProfile();
@@ -45,49 +67,31 @@ function ProfilePage() {
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
   const isNew = isError || !profile;
+  const profileForm = useMemo(() => profileToForm(profile), [profile]);
+  const effectiveIsEditing = isNew || isEditing;
+  const activeForm = effectiveIsEditing ? form : profileForm;
   const saving = createMutation.isPending || updateMutation.isPending || uploadImageMutation.isPending;
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        display_name: profile.display_name || "",
-        bio: profile.bio || "",
-        profile_image: profile.profile_image || "",
-        education_level: profile.education_level || "",
-        college_name: profile.college_name || "",
-        field_of_study: profile.field_of_study || "",
-        current_year: profile.current_year || "",
-        skill_level: profile.skill_level || "",
-        career_goal: profile.career_goal || "",
-        interests: profile.interests || [],
-        hobbies: profile.hobbies || [],
-        weekly_study_hours: profile.weekly_study_hours || "",
-        preferred_learning_style: profile.preferred_learning_style || "",
-        github_url: profile.github_url || "",
-        linkedin_url: profile.linkedin_url || "",
-        portfolio_url: profile.portfolio_url || "",
-      });
-    }
-  }, [profile]);
-
-  useEffect(() => {
-    if (!isLoading && isNew) setIsEditing(true);
-  }, [isLoading, isNew]);
-
-  const handleChange = (field, value) => {
+  const handleChange = useCallback((field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleImageSelect = (e) => {
+  const handleImageSelect = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImageFile(file);
       const url = URL.createObjectURL(file);
       setImagePreviewUrl(url);
     }
-  };
+  }, []);
 
-  const handleSave = async () => {
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
+
+  const handleSave = useCallback(async () => {
     const payload = {};
     for (const key in form) {
       payload[key] = form[key] === "" ? null : form[key];
@@ -108,7 +112,19 @@ function ProfilePage() {
       setIsEditing(false);
       setSelectedImageFile(null);
     } catch { /* toast handled by hook */ }
-  };
+  }, [createMutation, form, isNew, selectedImageFile, updateMutation, uploadImageMutation]);
+
+  const startEditing = useCallback((nextValue) => {
+    if (typeof nextValue === "function") {
+      setIsEditing(nextValue);
+      return;
+    }
+
+    if (nextValue) {
+      setForm(profileForm);
+    }
+    setIsEditing(nextValue);
+  }, [profileForm]);
 
   if (isLoading) {
     return (
@@ -125,38 +141,42 @@ function ProfilePage() {
   return (
     <DashboardLayout title="Student Profile">
       <ProfileHero 
-        form={form}
-        isEditing={isEditing}
+        form={activeForm}
+        isEditing={effectiveIsEditing}
         isNew={isNew}
         saving={saving}
         selectedImageFile={selectedImageFile}
         imagePreviewUrl={imagePreviewUrl}
         handleImageSelect={handleImageSelect}
         handleSave={handleSave}
-        setIsEditing={setIsEditing}
+        setIsEditing={startEditing}
         setForm={setForm}
-        profile={profile}
+        profile={profileForm}
         setImagePreviewUrl={setImagePreviewUrl}
       />
 
-      <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-12 gap-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="lg:col-span-8 space-y-8">
-          <IdentitySection isEditing={isEditing} form={form} handleChange={handleChange} />
-          <AcademicSection isEditing={isEditing} form={form} handleChange={handleChange} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+        {/* Left Column */}
+        <div className="lg:col-span-8 space-y-6 sm:gap-8">
+          <IdentitySection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
+          <AcademicSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
+          <div className="lg:hidden">
+             <LearningStyleSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
+          </div>
+          <InterestsSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
         </div>
 
-        <div className="lg:col-span-4 space-y-8">
-          <LearningStyleSection isEditing={isEditing} form={form} handleChange={handleChange} />
-          <SocialSection isEditing={isEditing} form={form} handleChange={handleChange} />
+        {/* Right Column (Desktop) */}
+        <div className="hidden lg:block lg:col-span-4 space-y-6 sm:gap-8">
+          <LearningStyleSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
+          <SocialSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
         </div>
 
-        <InterestsSection isEditing={isEditing} form={form} handleChange={handleChange} />
-      </motion.div>
+        {/* Social Section (Mobile) */}
+        <div className="lg:hidden space-y-6">
+          <SocialSection isEditing={effectiveIsEditing} form={activeForm} handleChange={handleChange} />
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

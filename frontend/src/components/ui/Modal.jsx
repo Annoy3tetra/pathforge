@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -22,7 +22,7 @@ export function Modal({ isOpen, onClose, title, children, className = "" }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="absolute inset-0 bg-black/70"
             onClick={onClose}
           />
           
@@ -33,7 +33,7 @@ export function Modal({ isOpen, onClose, title, children, className = "" }) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={cn(
-              "relative glass-dark rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[90vh]",
+              "relative glass-dark rounded-2xl shadow-xl w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[90vh]",
               className
             )}
           >

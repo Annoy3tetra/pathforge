@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Target, Pencil, Plus, Trash2
@@ -12,7 +12,6 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { Modal } from "../components/ui/Modal";
 import { Input } from "../components/ui/Input";
 
-import { MilestoneChart } from "../components/roadmap/MilestoneChart";
 import { RoadmapAnalytics } from "../components/roadmap/RoadmapAnalytics";
 import { MilestoneTimeline } from "../components/roadmap/MilestoneTimeline";
 
@@ -21,6 +20,10 @@ import {
   useCompleteMilestone, useDeleteRoadmap, useUpdateRoadmap,
   useUpdateMilestone, useDeleteMilestone, useAddMilestone,
 } from "../hooks/useRoadmaps";
+
+const MilestoneChart = lazy(() => import("../components/roadmap/MilestoneChart").then((module) => ({
+  default: module.MilestoneChart,
+})));
 
 function RoadmapDetailPage() {
   const { roadmapId } = useParams();
@@ -43,7 +46,6 @@ function RoadmapDetailPage() {
   const [expandedMilestones, setExpandedMilestones] = useState(new Set());
   const [recentlyCompleted, setRecentlyCompleted] = useState(new Set());
   const [completingId, setCompletingId] = useState(null);
-  const [resourceFilter, setResourceFilter] = useState("all");
 
   // Edit / CRUD states
   const [editRoadmapOpen, setEditRoadmapOpen] = useState(false);
@@ -59,16 +61,6 @@ function RoadmapDetailPage() {
   const [newMDesc, setNewMDesc] = useState("");
   const [newMDays, setNewMDays] = useState(7);
   const [saving, setSaving] = useState(false);
-
-  // Auto-expand first incomplete milestone on initial load
-  useEffect(() => {
-    if (roadmap && expandedMilestones.size === 0) {
-      const firstIncomplete = roadmap.milestones.find(m => !m.completed);
-      if (firstIncomplete) {
-        setExpandedMilestones(new Set([firstIncomplete.id]));
-      }
-    }
-  }, [roadmap]);
 
   const toggleMilestone = useCallback((id) => {
     setExpandedMilestones(prev => {
@@ -93,12 +85,54 @@ function RoadmapDetailPage() {
           return next;
         });
       }, 2000);
-    } catch (error) {
+    } catch {
       // toast already handled by hook
     } finally {
       setCompletingId(null);
     }
   }, [completeMutation]);
+
+  const openEditRoadmap = useCallback(() => {
+    setEditTitle(roadmap.title);
+    setEditDesc(roadmap.description || "");
+    setEditRoadmapOpen(true);
+  }, [roadmap]);
+
+  const handleDeleteRoadmap = useCallback(async () => {
+    if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
+    await deleteRoadmapMutation.mutateAsync(roadmapId);
+    navigate("/dashboard");
+  }, [deleteRoadmapMutation, navigate, roadmapId]);
+
+  const openAddMilestone = useCallback(() => {
+    setNewMTitle("");
+    setNewMDesc("");
+    setNewMDays(7);
+    setAddMilestoneOpen(true);
+  }, []);
+
+  // Derived once per roadmap update so stats, charts, and timeline do not each scan milestones.
+  const { total, completed, progress, totalDays, remainingDays } = useMemo(() => {
+    if (!roadmap) return { total: 0, completed: 0, progress: 0, totalDays: 0, remainingDays: 0 };
+
+    const milestones = roadmap.milestones || [];
+    const total = milestones.length;
+    const completed = milestones.filter((m) => m.completed).length;
+    const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+    const totalDays = milestones.reduce((acc, curr) => acc + curr.estimated_days, 0);
+    const remainingDays = milestones.filter(m => !m.completed).reduce((acc, curr) => acc + curr.estimated_days, 0);
+
+    return { total, completed, progress, totalDays, remainingDays };
+  }, [roadmap]);
+
+  const visibleExpandedMilestones = useMemo(() => {
+    if (expandedMilestones.size > 0 || !roadmap?.milestones?.length) {
+      return expandedMilestones;
+    }
+
+    const firstIncomplete = roadmap.milestones.find(m => !m.completed);
+    return firstIncomplete ? new Set([firstIncomplete.id]) : expandedMilestones;
+  }, [expandedMilestones, roadmap]);
 
   // --- Loading skeleton ---
   if (isLoading) {
@@ -138,19 +172,6 @@ function RoadmapDetailPage() {
     );
   }
 
-  // --- Derived values ---
-  const { total, completed, progress, totalDays, remainingDays } = useMemo(() => {
-    if (!roadmap) return { total: 0, completed: 0, progress: 0, totalDays: 0, remainingDays: 0 };
-    
-    const total = roadmap.milestones.length;
-    const completed = roadmap.milestones.filter((m) => m.completed).length;
-    const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
-    const totalDays = roadmap.milestones.reduce((acc, curr) => acc + curr.estimated_days, 0);
-    const remainingDays = roadmap.milestones.filter(m => !m.completed).reduce((acc, curr) => acc + curr.estimated_days, 0);
-    
-    return { total, completed, progress, totalDays, remainingDays };
-  }, [roadmap]);
-
   return (
     <DashboardLayout title="Roadmap Details">
       {/* Header Summary */}
@@ -171,22 +192,14 @@ function RoadmapDetailPage() {
           </div>
           <div className="flex gap-3 shrink-0 self-start sm:self-auto">
             <button
-              onClick={() => {
-                setEditTitle(roadmap.title);
-                setEditDesc(roadmap.description || "");
-                setEditRoadmapOpen(true);
-              }}
+              onClick={openEditRoadmap}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-colors text-sm font-medium"
             >
               <Pencil className="h-4 w-4" />
               Edit
             </button>
             <button
-              onClick={async () => {
-                if (!window.confirm("Are you sure you want to delete this roadmap? This cannot be undone.")) return;
-                await deleteRoadmapMutation.mutateAsync(roadmapId);
-                navigate("/dashboard");
-              }}
+              onClick={handleDeleteRoadmap}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
             >
               <Trash2 className="h-4 w-4" />
@@ -228,7 +241,9 @@ function RoadmapDetailPage() {
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
               Productivity Trend — Expected vs. Actual
             </h3>
-            <MilestoneChart data={analytics.productivity_trend} />
+            <Suspense fallback={<Skeleton className="h-[280px] w-full rounded-xl" />}>
+              <MilestoneChart data={analytics.productivity_trend} />
+            </Suspense>
           </CardContent>
         </Card>
       )}
@@ -240,7 +255,7 @@ function RoadmapDetailPage() {
 
       <MilestoneTimeline 
         milestones={roadmap.milestones}
-        expandedMilestones={expandedMilestones}
+        expandedMilestones={visibleExpandedMilestones}
         toggleMilestone={toggleMilestone}
         handleComplete={handleComplete}
         recentlyCompleted={recentlyCompleted}
@@ -251,14 +266,12 @@ function RoadmapDetailPage() {
         setMDays={setMDays}
         setEditMilestoneOpen={setEditMilestoneOpen}
         deleteMilestoneMutation={deleteMilestoneMutation}
-        resourceFilter={resourceFilter}
-        setResourceFilter={setResourceFilter}
       />
 
       {/* Add Milestone Button */}
       <div className="flex justify-center mt-8">
         <button
-          onClick={() => { setNewMTitle(""); setNewMDesc(""); setNewMDays(7); setAddMilestoneOpen(true); }}
+          onClick={openAddMilestone}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-colors text-sm font-medium"
         >
           <Plus className="h-5 w-5" />
@@ -294,7 +307,7 @@ function RoadmapDetailPage() {
                 try {
                   await updateRoadmapMutation.mutateAsync({ roadmapId, updates: { title: editTitle.trim(), description: editDesc.trim() } });
                   setEditRoadmapOpen(false);
-                } catch (err) {
+                } catch {
                   // toast handled by hook
                 } finally { setSaving(false); }
               }}
@@ -336,7 +349,7 @@ function RoadmapDetailPage() {
                     updates: { title: mTitle.trim(), description: mDesc.trim(), estimated_days: mDays }
                   });
                   setEditMilestoneOpen(false);
-                } catch (err) {
+                } catch {
                   // toast handled by hook
                 } finally { setSaving(false); }
               }}
@@ -378,7 +391,7 @@ function RoadmapDetailPage() {
                     milestone: { title: newMTitle.trim(), description: newMDesc.trim(), estimated_days: newMDays }
                   });
                   setAddMilestoneOpen(false);
-                } catch (err) {
+                } catch {
                   // toast handled by hook
                 } finally { setSaving(false); }
               }}
@@ -391,4 +404,4 @@ function RoadmapDetailPage() {
   );
 }
 
-export default RoadmapDetailPage;
+export default RoadmapDetailPage;

@@ -1,6 +1,5 @@
-import { useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp } from "lucide-react";
+import { useCallback } from "react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Card, CardHeader, CardContent } from "../components/ui/Card";
@@ -20,15 +19,17 @@ function DashboardPage() {
   const generateMutation = useGenerateRoadmap();
   const completeMutation = useCompleteMilestone();
   const deleteMutation = useDeleteRoadmap();
+  const { mutate: completeMilestone } = completeMutation;
+  const { mutate: deleteRoadmap } = deleteMutation;
 
   const handleComplete = useCallback((milestoneId) => {
-    completeMutation.mutate(milestoneId);
-  }, [completeMutation]);
+    completeMilestone(milestoneId);
+  }, [completeMilestone]);
 
   const handleDelete = useCallback((roadmapId) => {
     if (!window.confirm("Are you sure you want to delete this roadmap?")) return;
-    deleteMutation.mutate(roadmapId);
-  }, [deleteMutation]);
+    deleteRoadmap(roadmapId);
+  }, [deleteRoadmap]);
 
   if (initialLoad) {
     return (
@@ -57,21 +58,15 @@ function DashboardPage() {
         profile={profile} 
       />
 
-      <AnimatePresence>
-        {roadmaps.length > 0 && (
-          <motion.section 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
-          >
+      {roadmaps.length > 0 && (
+          <section className="mb-12">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
               <h2 className="text-xl font-bold text-white tracking-tight">Learning Insights</h2>
             </div>
             <InsightsCards />
-          </motion.section>
+          </section>
         )}
-      </AnimatePresence>
 
       <RoadmapGrid 
         roadmaps={roadmaps} 

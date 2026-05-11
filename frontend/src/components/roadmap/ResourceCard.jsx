@@ -1,4 +1,4 @@
-import React from "react";
+import { memo, useMemo } from "react";
 import { ExternalLink, Video, FileText, GraduationCap, BookOpen } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -31,7 +31,7 @@ const DIFFICULTY_COLORS = {
   advanced: "text-rose-400",
 };
 
-export function ResourceCard({ resource }) {
+export const ResourceCard = memo(function ResourceCard({ resource }) {
   const config = TYPE_CONFIG[resource.type] || TYPE_CONFIG.article;
   const Icon = config.icon;
 
@@ -41,7 +41,7 @@ export function ResourceCard({ resource }) {
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 group glass hover:border-white/20",
+        "flex items-center gap-3 p-3 rounded-xl border transition-[border-color,background-color] duration-200 group glass hover:border-white/20",
         config.color,
         "bg-opacity-5"
       )}
@@ -69,12 +69,14 @@ export function ResourceCard({ resource }) {
       <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-white shrink-0 transition-colors" />
     </a>
   );
-}
+});
 
-export function ResourceList({ resources, filter }) {
-  const filtered = filter === "all"
-    ? resources
-    : resources.filter((r) => r.type === filter);
+export const ResourceList = memo(function ResourceList({ resources, filter }) {
+  const filtered = useMemo(() => (
+    filter === "all"
+      ? resources
+      : resources.filter((r) => r.type === filter)
+  ), [filter, resources]);
 
   if (filtered.length === 0) {
     return (
@@ -93,4 +95,4 @@ export function ResourceList({ resources, filter }) {
       ))}
     </div>
   );
-}
+});

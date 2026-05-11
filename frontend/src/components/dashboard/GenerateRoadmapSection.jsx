@@ -1,5 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Sparkles, 
@@ -34,7 +33,10 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [generationError, setGenerationError] = useState(null);
 
-  const hasIncompleteProfile = !profile || !profile.skill_level || !profile.weekly_study_hours || !profile.career_goal;
+  const hasIncompleteProfile = useMemo(
+    () => !profile || !profile.skill_level || !profile.weekly_study_hours || !profile.career_goal,
+    [profile]
+  );
   const loading = generateMutation.isPending;
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (!goal.trim()) return;
     setGenerationError(null);
     try {
@@ -59,7 +61,16 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
       const errorMsg = typeof detail === "object" ? detail.error : "Generation failed. Please try again.";
       setGenerationError(errorMsg);
     }
-  };
+  }, [generateMutation, goal]);
+
+  const handleRetry = useCallback(() => {
+    setGenerationError(null);
+    handleGenerate();
+  }, [handleGenerate]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === "Enter") handleGenerate();
+  }, [handleGenerate]);
 
   return (
     <section className="mb-12">
@@ -67,16 +78,9 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
         "relative overflow-hidden transition-all duration-500 border-indigo-500/10",
         loading && "border-indigo-500/40 shadow-2xl shadow-indigo-500/20"
       )}>
-        <AnimatePresence>
-          {loading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-[gradient_2s_linear_infinite]" 
-            />
-          )}
-        </AnimatePresence>
+        {loading && (
+          <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-500/80" />
+        )}
         
         <CardHeader className="relative z-10">
           <div className="flex items-center gap-3 mb-1">
@@ -93,50 +97,32 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
         </CardHeader>
         
         <CardContent className="relative z-10">
-          <AnimatePresence mode="wait">
             {loading ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="flex flex-col items-center justify-center py-10 bg-indigo-500/5 rounded-2xl border border-indigo-500/10"
-              >
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="mb-6"
-                >
+              <div className="flex flex-col items-center justify-center py-10 bg-indigo-500/5 rounded-2xl border border-indigo-500/10">
+                <div className="mb-6 animate-spin motion-reduce:animate-none">
                   <BrainCircuit className="h-12 w-12 text-indigo-400" />
-                </motion.div>
+                </div>
                 <p className="text-lg font-semibold text-indigo-100 mb-2">
                   {AI_PHRASES[phraseIndex]}
                 </p>
                 <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-4 overflow-hidden relative">
-                  <motion.div 
-                    className="absolute inset-y-0 bg-indigo-500 w-1/2 rounded-full"
-                    animate={{ x: ["-100%", "200%"] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                  />
+                  <div className="absolute inset-y-0 bg-indigo-500 w-1/2 rounded-full animate-[progress_1.5s_ease-in-out_infinite] motion-reduce:animate-none" />
                 </div>
-              </motion.div>
+              </div>
             ) : generationError ? (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-10 bg-rose-500/5 rounded-2xl border border-rose-500/10"
-              >
+              <div className="flex flex-col items-center justify-center py-10 bg-rose-500/5 rounded-2xl border border-rose-500/10">
                 <AlertCircle className="h-12 w-12 text-rose-400 mb-4" />
                 <p className="text-lg font-bold text-rose-200 mb-2">Generation Failed</p>
                 <p className="text-sm text-slate-400 mb-6 text-center max-w-md">{generationError}</p>
                 <Button
-                  onClick={() => { setGenerationError(null); handleGenerate(); }}
+                  onClick={handleRetry}
                   variant="danger"
                   disabled={!goal.trim()}
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Retry Generation
                 </Button>
-              </motion.div>
+              </div>
             ) : (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -146,7 +132,7 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
                     value={goal}
                     onChange={(e) => setGoal(e.target.value)}
                     className="flex-1 text-base h-12"
-                    onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                    onKeyDown={handleKeyDown}
                   />
                   <Button
                     onClick={handleGenerate}
@@ -186,7 +172,6 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
                 </div>
               </div>
             )}
-          </AnimatePresence>
         </CardContent>
       </Card>
     </section>

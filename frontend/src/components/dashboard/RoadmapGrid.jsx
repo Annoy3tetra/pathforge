@@ -1,5 +1,4 @@
-import React, { memo } from "react";
-import { motion } from "framer-motion";
+import { memo, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
   Compass, 
@@ -46,14 +45,7 @@ export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete }) => 
         </div>
       </div>
 
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        initial="hidden"
-        animate="show"
-        variants={{
-          show: { transition: { staggerChildren: 0.05 } }
-        }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {roadmaps.map((roadmap) => (
           <RoadmapCard 
             key={roadmap.id} 
@@ -62,24 +54,32 @@ export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete }) => 
             onComplete={handleComplete}
           />
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 });
 
 const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
-  const total = roadmap.milestones.length;
-  const completed = roadmap.milestones.filter((m) => m.completed).length;
-  const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+  const { progress, visibleMilestones, hiddenCount } = useMemo(() => {
+    const milestones = roadmap.milestones || [];
+    const total = milestones.length;
+    const completed = milestones.filter((m) => m.completed).length;
+
+    return {
+      progress: total === 0 ? 0 : Math.round((completed / total) * 100),
+      visibleMilestones: milestones.slice(0, 3),
+      hiddenCount: Math.max(total - 3, 0),
+    };
+  }, [roadmap.milestones]);
+
+  const handleDelete = useCallback(() => onDelete(roadmap.id), [onDelete, roadmap.id]);
+  const handleMilestoneComplete = useCallback((milestoneId) => {
+    onComplete(milestoneId);
+  }, [onComplete]);
 
   return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 10 },
-        show: { opacity: 1, y: 0 }
-      }}
-    >
-      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30 transition-all duration-300">
+    <div>
+      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30 transition-[border-color,background-color] duration-300">
         <CardHeader className="pb-4 shrink-0">
           <div className="flex justify-between items-start gap-4 mb-3">
             <CardTitle className="text-lg font-bold line-clamp-2 group-hover:text-indigo-400 transition-colors leading-snug">
@@ -101,38 +101,23 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress</span>
               <span className="text-indigo-400 font-black tabular-nums">{progress}%</span>
             </div>
-            <ProgressBar progress={progress} className="h-1.5 shadow-sm" />
+            <ProgressBar progress={progress} className="h-1.5" />
           </div>
 
           {/* Next Steps Section */}
           <div className="space-y-4 flex-1">
             <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Next Milestones</h4>
             <div className="space-y-3">
-              {roadmap.milestones.slice(0, 3).map((milestone) => (
-                <div key={milestone.id} className="flex items-start gap-3 group/item min-w-0">
-                  <button 
-                    onClick={() => !milestone.completed && onComplete(milestone.id)}
-                    className={cn(
-                      "mt-0.5 shrink-0 transition-all duration-300",
-                      milestone.completed 
-                        ? "text-emerald-500 scale-110" 
-                        : "text-slate-600 hover:text-indigo-400 hover:scale-110"
-                    )}
-                    disabled={milestone.completed}
-                  >
-                    {milestone.completed ? <CheckCircle2 size={16} /> : <Circle size={16} />}
-                  </button>
-                  <span className={cn(
-                    "text-sm break-words line-clamp-1 transition-colors leading-tight flex-1",
-                    milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
-                  )}>
-                    {milestone.title}
-                  </span>
-                </div>
+              {visibleMilestones.map((milestone) => (
+                <MilestonePreview
+                  key={milestone.id}
+                  milestone={milestone}
+                  onComplete={handleMilestoneComplete}
+                />
               ))}
-              {roadmap.milestones.length > 3 && (
+              {hiddenCount > 0 && (
                 <p className="text-[10px] text-slate-500 font-bold italic ml-7">
-                  + {roadmap.milestones.length - 3} more steps
+                  + {hiddenCount} more steps
                 </p>
               )}
             </div>
@@ -148,7 +133,7 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
               </Button>
             </Link>
             <button
-              onClick={() => onDelete(roadmap.id)}
+              onClick={handleDelete}
               className="p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all"
               title="Delete roadmap"
             >
@@ -157,6 +142,35 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
           </div>
         </CardFooter>
       </Card>
-    </motion.div>
+    </div>
+  );
+});
+
+const MilestonePreview = memo(({ milestone, onComplete }) => {
+  const handleClick = useCallback(() => {
+    if (!milestone.completed) onComplete(milestone.id);
+  }, [milestone.completed, milestone.id, onComplete]);
+
+  return (
+    <div className="flex items-start gap-3 group/item min-w-0">
+      <button
+        onClick={handleClick}
+        className={cn(
+          "mt-0.5 shrink-0 transition-colors",
+          milestone.completed
+            ? "text-emerald-500"
+            : "text-slate-600 hover:text-indigo-400"
+        )}
+        disabled={milestone.completed}
+      >
+        {milestone.completed ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+      </button>
+      <span className={cn(
+        "text-sm break-words line-clamp-1 transition-colors leading-tight flex-1",
+        milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
+      )}>
+        {milestone.title}
+      </span>
+    </div>
   );
 });

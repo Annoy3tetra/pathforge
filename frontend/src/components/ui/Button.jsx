@@ -1,5 +1,3 @@
-import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 
 export function Button({ 
@@ -27,11 +25,9 @@ export function Button({
   };
 
   return (
-    <motion.button
-      whileHover={!disabled && !isLoading ? { scale: 1.02, translateY: -1 } : {}}
-      whileTap={!disabled && !isLoading ? { scale: 0.98 } : {}}
+    <button
       className={cn(
-        "relative inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group",
+        "relative inline-flex items-center justify-center font-medium rounded-xl transition-[background-color,border-color,color,transform] duration-150 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group enabled:hover:-translate-y-px active:translate-y-0",
         variants[variant],
         sizes[size],
         className
@@ -50,6 +46,6 @@ export function Button({
       ) : (
         children
       )}
-    </motion.button>
+    </button>
   );
 }
