@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { 
   Compass, 
   ArrowUp, 
+  Sparkles,
   Layout,
   ArrowRight,
   CheckCircle2,
@@ -15,7 +16,7 @@ import { ProgressBar } from "../ui/ProgressBar";
 import { RoadmapFeedbackBadge } from "../roadmap/RoadmapFeedbackBadge";
 import { cn } from "../../lib/utils";
 
-export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete }) => {
+export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete, emptyVariant = "dashboard" }) => {
   if (roadmaps.length === 0) {
     return (
       <Card className="py-24 text-center border-dashed border-2 bg-transparent">
@@ -23,11 +24,24 @@ export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete }) => 
           <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20">
             <Compass className="h-10 w-10 text-indigo-400 animate-pulse" />
           </div>
-          <CardTitle className="text-2xl mb-4">No learning paths yet</CardTitle>
+          <CardTitle className="text-2xl mb-4">
+            {emptyVariant === "saved" ? "No saved roadmaps yet" : "No learning paths yet"}
+          </CardTitle>
           <CardDescription className="text-base mb-8">
-            Your future is waiting to be forged. Type your goal above and let PathForge design your success.
+            {emptyVariant === "saved"
+              ? "Generate a roadmap from the dashboard and it will appear here automatically."
+              : "Your future is waiting to be forged. Type your goal above and let PathForge design your success."}
           </CardDescription>
-          <ArrowUp className="text-indigo-400 animate-bounce h-6 w-6" />
+          {emptyVariant === "saved" ? (
+            <Link to="/dashboard">
+              <Button>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate Roadmap
+              </Button>
+            </Link>
+          ) : (
+            <ArrowUp className="text-indigo-400 animate-bounce h-6 w-6" />
+          )}
         </div>
       </Card>
     );

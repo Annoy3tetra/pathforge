@@ -18,6 +18,7 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const RoadmapDetailPage = lazy(() => import("./pages/RoadmapDetailPage"));
+const MyRoadmapsPage = lazy(() => import("./pages/MyRoadmapsPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ForgeProfilePage = lazy(() => import("./pages/ForgeProfilePage"));
 
@@ -71,6 +72,15 @@ function AnimatedRoutes() {
             element={
               <ProtectedRoute>
                 <RoadmapDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/my-roadmaps"
+            element={
+              <ProtectedRoute>
+                <MyRoadmapsPage />
               </ProtectedRoute>
             }
           />

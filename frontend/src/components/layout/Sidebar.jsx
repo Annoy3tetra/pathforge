@@ -6,7 +6,6 @@ import {
   Brain,
   LayoutDashboard, 
   Map, 
-  PlusCircle, 
   X, 
   ChevronLeft, 
   ChevronRight,
@@ -55,8 +54,7 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
   const navItems = useMemo(() => [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "ForgeProfile", path: "/forge-profile", icon: Brain },
-    { name: "My Roadmaps", path: "/dashboard#roadmaps", icon: Map },
-    { name: "Generate", path: "/dashboard#generate", icon: PlusCircle },
+    { name: "My Roadmaps", path: "/my-roadmaps", icon: Map },
   ], []);
 
   const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), []);
@@ -79,7 +77,7 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
       {/* Sidebar container */}
       <div
         className={cn(
-          "fixed md:static inset-y-0 left-0 z-50 flex flex-col glass border-r border-white/5 h-screen md:translate-x-0 shrink-0 transition-[width,transform] duration-200 ease-out",
+          "fixed md:sticky md:top-0 inset-y-0 left-0 z-50 flex flex-col glass border-r border-white/5 h-dvh md:translate-x-0 shrink-0 transition-[width,transform] duration-200 ease-out",
           isCollapsed ? "md:w-20" : "md:w-64",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
@@ -125,9 +123,7 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
           )}
           
           {navItems.map((item) => {
-            const isHashMatch = item.path.includes("#") && location.hash === item.path.substring(item.path.indexOf("#"));
-            const isPathMatch = !item.path.includes("#") && location.pathname.startsWith(item.path) && !location.hash;
-            const isActive = isHashMatch || isPathMatch;
+            const isActive = location.pathname === item.path;
             
             return (
               <NavItem 

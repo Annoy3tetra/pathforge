@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Sparkles, 
   BrainCircuit, 
@@ -29,6 +29,7 @@ const SUGGESTED_GOALS = [
 ];
 
 export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
+  const navigate = useNavigate();
   const [goal, setGoal] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [generationError, setGenerationError] = useState(null);
@@ -56,12 +57,13 @@ export const GenerateRoadmapSection = memo(({ generateMutation, profile }) => {
     try {
       await generateMutation.mutateAsync(goal);
       setGoal("");
+      navigate("/my-roadmaps");
     } catch (error) {
       const detail = error.response?.data?.detail;
       const errorMsg = typeof detail === "object" ? detail.error : "Generation failed. Please try again.";
       setGenerationError(errorMsg);
     }
-  }, [generateMutation, goal]);
+  }, [generateMutation, goal, navigate]);
 
   const handleRetry = useCallback(() => {
     setGenerationError(null);
