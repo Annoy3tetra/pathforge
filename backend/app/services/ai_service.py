@@ -5,6 +5,7 @@ import logging
 import time
 
 from app.core.config import settings
+from app.services.resource_engine import attach_trusted_resources
 
 logger = logging.getLogger("pathforge.ai")
 
@@ -105,7 +106,7 @@ def validate_roadmap(data: dict) -> dict:
             "title": m["title"].strip(),
             "description": (m.get("description") or "").strip(),
             "estimated_days": est_days,
-            "resources": _validate_resources(m.get("resources", []), idx),
+            "resources": [],
         })
 
     if len(cleaned_milestones) == 0:
@@ -113,7 +114,7 @@ def validate_roadmap(data: dict) -> dict:
             "All milestones were invalid after validation"
         )
 
-    data["milestones"] = cleaned_milestones
+    data["milestones"] = attach_trusted_resources(cleaned_milestones)
     data["title"] = data["title"].strip()
     data["description"] = data["description"].strip()
 
@@ -287,22 +288,12 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
           "title": "Milestone title",
           "description": "Milestone description",
           "estimated_days": 7,
-          "resources": [
-            {{
-              "title": "Resource name",
-              "url": "https://example.com",
-              "type": "article",
-              "difficulty": "beginner"
-            }}
-          ]
+          "resources": []
         }}
       ]
     }}
 
-    For each milestone, include 2-3 real, relevant learning resources.
-    Resource type must be one of: video, article, course, docs.
-    Difficulty must be one of: beginner, intermediate, advanced.
-    Use real URLs from sites like MDN, YouTube, freeCodeCamp, Coursera, official docs, etc.
+    Do not generate resource URLs. PathForge will attach verified resources from its trusted catalog.
     """
 
     last_error = None

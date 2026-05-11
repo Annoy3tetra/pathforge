@@ -34,24 +34,18 @@ const DIFFICULTY_COLORS = {
 export const ResourceCard = memo(function ResourceCard({ resource }) {
   const config = TYPE_CONFIG[resource.type] || TYPE_CONFIG.article;
   const Icon = config.icon;
-
-  return (
-    <a
-      href={resource.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        "flex items-center gap-3 p-3 rounded-xl border transition-[border-color,background-color] duration-200 group glass hover:border-white/20",
-        config.color,
-        "bg-opacity-5"
-      )}
-    >
+  const unavailable = !resource.url;
+  const content = (
+    <>
       <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner", config.badge)}>
         <Icon className="h-5 w-5" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-slate-100 truncate group-hover:text-white transition-colors">
+        <p className={cn(
+          "text-sm font-bold truncate transition-colors",
+          unavailable ? "text-slate-500 italic" : "text-slate-100 group-hover:text-white"
+        )}>
           {resource.title}
         </p>
         <div className="flex items-center gap-2 mt-1">
@@ -66,7 +60,36 @@ export const ResourceCard = memo(function ResourceCard({ resource }) {
         </div>
       </div>
 
-      <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-white shrink-0 transition-colors" />
+      {!unavailable && <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-white shrink-0 transition-colors" />}
+    </>
+  );
+
+  if (unavailable) {
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-950/40 text-slate-500",
+          config.color,
+          "bg-opacity-5"
+        )}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={resource.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-xl border transition-[border-color,background-color] duration-200 group glass hover:border-white/20",
+        config.color,
+        "bg-opacity-5"
+      )}
+      >
+      {content}
     </a>
   );
 });

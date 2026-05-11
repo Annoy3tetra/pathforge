@@ -16,7 +16,7 @@ class Resource(Base):
 
     title = Column(String, nullable=False)
 
-    url = Column(String, nullable=False)
+    url = Column(String, nullable=True)
 
     type = Column(
         String,

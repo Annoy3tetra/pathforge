@@ -5,7 +5,7 @@ from typing import List, Optional
 class ResourceResponse(BaseModel):
     id: int
     title: str
-    url: str
+    url: Optional[str]
     type: str
     difficulty: Optional[str]
 
