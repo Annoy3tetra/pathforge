@@ -10,24 +10,24 @@ export function Button({
   ...props 
 }) {
   const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-500 shadow-[0_0_20px_-5px_rgba(79,70,229,0.4)]",
-    secondary: "bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700",
-    outline: "bg-transparent border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white",
-    ghost: "bg-transparent text-slate-400 hover:text-white hover:bg-slate-800/50",
-    danger: "bg-rose-600/10 text-rose-500 border border-rose-500/20 hover:bg-rose-600/20",
-    success: "bg-emerald-600/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-600/20",
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-200",
+    secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200",
+    outline: "bg-transparent border border-slate-300 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/50",
+    ghost: "bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100",
+    danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100",
+    success: "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100",
   };
 
   const sizes = {
     sm: "px-3 py-1.5 text-xs",
-    md: "px-4 py-2 text-sm",
+    md: "px-4 py-2.5 text-sm",
     lg: "px-6 py-3 text-base",
   };
 
   return (
     <button
       className={cn(
-        "relative inline-flex items-center justify-center font-medium rounded-xl transition-[background-color,border-color,color,transform] duration-150 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group enabled:hover:-translate-y-px active:translate-y-0",
+        "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden cursor-pointer",
         variants[variant],
         sizes[size],
         className

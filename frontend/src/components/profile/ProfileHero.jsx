@@ -31,15 +31,16 @@ export const ProfileHero = memo(function ProfileHero({
 
   return (
     <section className="relative mb-12">
-      <div className="h-48 w-full bg-gradient-to-r from-indigo-900/50 via-purple-900/30 to-slate-900 rounded-3xl border border-white/5 overflow-hidden relative">
-        <div className="absolute inset-0 bg-slate-900/20" />
+      <div className="h-48 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 rounded-3xl overflow-hidden relative">
+        <div className="absolute inset-0 bg-white/10" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -translate-y-1/3 translate-x-1/4" />
       </div>
       
       <div className="px-4 sm:px-12 -mt-20 relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
         <div className="relative group shrink-0">
           <div className={cn(
-            "h-32 w-32 sm:h-40 sm:w-40 rounded-[2rem] border-[6px] border-slate-950 overflow-hidden shadow-2xl relative transition-transform duration-500 group-hover:scale-105",
-            !form.profile_image && !imagePreviewUrl && "bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-4xl sm:text-5xl font-black text-white"
+            "h-32 w-32 sm:h-40 sm:w-40 rounded-[2rem] border-[6px] border-slate-50 overflow-hidden shadow-xl relative transition-transform duration-500 group-hover:scale-105",
+            !form.profile_image && !imagePreviewUrl && "bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white"
           )}>
             {imageSrc ? (
               <img
@@ -54,15 +55,15 @@ export const ProfileHero = memo(function ProfileHero({
             ) : initials}
             
             {isEditing && (
-                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
                   <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-1" />
-                  <span className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest">Change Photo</span>
+                  <span className="text-[8px] sm:text-[10px] font-bold text-white uppercase tracking-widest">Change Photo</span>
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
                 </label>
               )}
           </div>
           {selectedImageFile && (
-            <div className="absolute -top-1 -right-1 h-6 w-6 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center shadow-lg animate-bounce">
+            <div className="absolute -top-1 -right-1 h-6 w-6 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg animate-bounce">
               <CheckCircleSmall size={12} className="text-white" />
             </div>
           )}
@@ -70,7 +71,7 @@ export const ProfileHero = memo(function ProfileHero({
 
         <div className="flex-1 text-center md:text-left min-w-0">
           <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 mb-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight break-words">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight break-words">
               {form.display_name || "New Student"}
             </h1>
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
@@ -78,7 +79,7 @@ export const ProfileHero = memo(function ProfileHero({
               <Badge color="indigo" icon={GraduationCap}>{form.education_level || "Student"}</Badge>
             </div>
           </div>
-          <p className="text-slate-400 max-w-2xl text-base sm:text-lg font-medium leading-relaxed break-words">
+          <p className="text-slate-500 max-w-2xl text-base sm:text-lg font-medium leading-relaxed break-words">
             {form.bio || "Crafting a unique learning journey with PathForge."}
           </p>
         </div>
@@ -91,12 +92,12 @@ export const ProfileHero = memo(function ProfileHero({
                   <X className="mr-2 h-4 w-4" /> Cancel
                 </Button>
               )}
-              <Button onClick={handleSave} isLoading={saving} className="h-10 px-6 shadow-indigo-500/20">
+              <Button onClick={handleSave} isLoading={saving} className="h-10 px-6">
                 <Save className="mr-2 h-4 w-4" /> {isNew ? "Create Profile" : "Save Changes"}
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} variant="secondary" className="h-10 px-6 glass">
+            <Button onClick={() => setIsEditing(true)} variant="secondary" className="h-10 px-6">
               <Pencil className="mr-2 h-4 w-4" /> Edit Profile
             </Button>
           )}
@@ -108,11 +109,11 @@ export const ProfileHero = memo(function ProfileHero({
 
 const Badge = memo(function Badge({ children, color = "indigo", icon: Icon }) {
   const styles = {
-    indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-    emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    indigo: "bg-indigo-50 text-indigo-600 border-indigo-200",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-200",
   };
   return (
-    <div className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border", styles[color])}>
+    <div className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border", styles[color])}>
       {Icon && <Icon size={12} />}
       {children}
     </div>

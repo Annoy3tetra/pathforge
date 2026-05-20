@@ -37,31 +37,31 @@ export const Navbar = memo(({ title, onMenuClick }) => {
   }, []);
 
   return (
-    <nav className="h-16 border-b border-slate-800 bg-slate-900/60 backdrop-blur-[4px] sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-10">
+    <nav className="h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-10">
       <div className="flex items-center gap-4">
         {/* Mobile menu button */}
         <button
           onClick={onMenuClick}
-          className="md:hidden text-slate-400 hover:text-white p-2 -ml-2 rounded-md hover:bg-slate-800 transition-colors"
+          className="md:hidden text-slate-500 hover:text-slate-700 p-2 -ml-2 rounded-md hover:bg-slate-100 transition-colors"
           aria-label="Open sidebar"
         >
           <Menu className="h-6 w-6" />
         </button>
         
-        <h1 className="text-xl font-semibold text-slate-100 hidden md:block">{title}</h1>
+        <h1 className="text-xl font-semibold text-slate-800 hidden md:block">{title}</h1>
         
-        {/* Mobile brand (shows when sidebar is hidden) */}
-        <h1 className="text-xl font-bold text-white tracking-tight md:hidden">PathForge</h1>
+        {/* Mobile brand */}
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight md:hidden">PathForge</h1>
       </div>
 
       <div className="flex items-center gap-4 relative" ref={dropdownRef}>
         {/* User Profile Button */}
         <button 
           onClick={toggleDropdown}
-          className="flex items-center gap-2 p-1 rounded-full hover:bg-white/5 transition-all group"
+          className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-all group cursor-pointer"
         >
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px] shadow-lg shadow-indigo-500/10">
-            <div className="h-full w-full rounded-full bg-slate-900 flex items-center justify-center text-indigo-400 overflow-hidden">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 p-[2px] shadow-sm">
+            <div className="h-full w-full rounded-full bg-white flex items-center justify-center text-indigo-600 overflow-hidden">
               {profile?.profile_image ? (
                 <img 
                   src={profile.profile_image.startsWith("http") ? profile.profile_image : `${import.meta.env.VITE_API_URL}${profile.profile_image}`} 
@@ -76,15 +76,15 @@ export const Navbar = memo(({ title, onMenuClick }) => {
             </div>
           </div>
           <div className="hidden sm:block text-left mr-1">
-            <p className="text-xs font-bold text-slate-200 leading-none mb-1">
+            <p className="text-xs font-semibold text-slate-700 leading-none mb-1">
               {profile?.display_name || "Account"}
             </p>
-            <p className="text-[10px] text-slate-500 font-medium leading-none">
+            <p className="text-[10px] text-slate-400 font-medium leading-none capitalize">
               {profile?.skill_level || "Member"}
             </p>
           </div>
           <ChevronDown className={cn(
-            "h-4 w-4 text-slate-500 transition-transform duration-200",
+            "h-4 w-4 text-slate-400 transition-transform duration-200",
             isDropdownOpen && "rotate-180"
           )} />
         </button>
@@ -97,53 +97,53 @@ export const Navbar = memo(({ title, onMenuClick }) => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.98 }}
               transition={{ duration: 0.1, ease: "easeOut" }}
-              className="absolute right-0 top-full mt-2 w-56 glass border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+              className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden z-50"
             >
-              <div className="p-4 border-b border-white/5 bg-white/5">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">User Account</p>
-                <p className="text-sm font-bold text-white truncate">{profile?.display_name || "Profile"}</p>
+              <div className="p-4 border-b border-slate-100 bg-slate-50">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Account</p>
+                <p className="text-sm font-semibold text-slate-800 truncate">{profile?.display_name || "Profile"}</p>
               </div>
 
               <div className="p-2">
                 <Link 
                   to="/profile" 
                   onClick={closeDropdown}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-indigo-500/10 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 transition-colors"
                 >
-                  <User className="h-4 w-4 text-indigo-400" />
+                  <User className="h-4 w-4 text-indigo-500" />
                   <span className="text-sm font-medium">My Profile</span>
                 </Link>
                 <Link
                   to="/forge-profile"
                   onClick={closeDropdown}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-indigo-500/10 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 transition-colors"
                 >
-                  <Brain className="h-4 w-4 text-indigo-400" />
+                  <Brain className="h-4 w-4 text-indigo-500" />
                   <span className="text-sm font-medium">ForgeProfile</span>
                 </Link>
                 <button 
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors text-left"
                   onClick={closeDropdown}
                 >
-                  <Settings className="h-4 w-4 text-slate-500" />
+                  <Settings className="h-4 w-4 text-slate-400" />
                   <span className="text-sm font-medium">Settings</span>
                 </button>
                 <button 
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors text-left"
                   onClick={closeDropdown}
                 >
-                  <CreditCard className="h-4 w-4 text-slate-500" />
+                  <CreditCard className="h-4 w-4 text-slate-400" />
                   <span className="text-sm font-medium">Subscription</span>
                 </button>
               </div>
 
-              <div className="p-2 border-t border-white/5">
+              <div className="p-2 border-t border-slate-100">
                 <button 
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span className="text-sm font-bold">Log out</span>
+                  <span className="text-sm font-semibold">Log out</span>
                 </button>
               </div>
             </motion.div>

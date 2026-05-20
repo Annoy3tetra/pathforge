@@ -19,9 +19,9 @@ import { cn } from "../../lib/utils";
 export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete, emptyVariant = "dashboard" }) => {
   if (roadmaps.length === 0) {
     return (
-      <Card className="py-24 text-center border-dashed border-2 bg-transparent">
+      <Card className="py-24 text-center border-dashed border-2 border-slate-200 bg-slate-50/50">
         <div className="max-w-md mx-auto px-4 flex flex-col items-center">
-          <div className="h-20 w-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20">
+          <div className="h-20 w-20 bg-indigo-50 rounded-full flex items-center justify-center mb-8 border border-indigo-100">
             <Compass className="h-10 w-10 text-indigo-400 animate-pulse" />
           </div>
           <CardTitle className="text-2xl mb-4">
@@ -49,17 +49,17 @@ export const RoadmapGrid = memo(({ roadmaps, handleDelete, handleComplete, empty
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Layout className="h-5 w-5 text-indigo-400" />
-          <h2 className="text-xl font-bold text-white tracking-tight">Your Active Paths</h2>
+          <Layout className="h-5 w-5 text-indigo-500" />
+          <h2 className="text-lg font-semibold text-slate-800">Your Active Paths</h2>
         </div>
-        <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-slate-400 uppercase tracking-widest">
+        <div className="px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-xs font-semibold text-indigo-600">
           {roadmaps.length} {roadmaps.length === 1 ? 'Path' : 'Paths'}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {roadmaps.map((roadmap) => (
           <RoadmapCard 
             key={roadmap.id} 
@@ -93,10 +93,10 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
 
   return (
     <div>
-      <Card animate className="group flex flex-col h-full hover:border-indigo-500/30 transition-[border-color,background-color] duration-300">
+      <Card animate className="group flex flex-col h-full hover:border-indigo-200 transition-all duration-300">
         <CardHeader className="pb-4 shrink-0">
           <div className="flex justify-between items-start gap-4 mb-3">
-            <CardTitle className="text-lg font-bold line-clamp-2 group-hover:text-indigo-400 transition-colors leading-snug">
+            <CardTitle className="text-lg font-bold line-clamp-2 group-hover:text-indigo-600 transition-colors leading-snug">
               {roadmap.title}
             </CardTitle>
             <div className="shrink-0 mt-1">
@@ -110,18 +110,18 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
         
         <CardContent className="flex-1 flex flex-col pt-2">
           {/* Progress Section */}
-          <div className="space-y-2 mb-8">
+          <div className="space-y-2 mb-6">
             <div className="flex justify-between items-end text-sm">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress</span>
-              <span className="text-indigo-400 font-black tabular-nums">{progress}%</span>
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Progress</span>
+              <span className="text-indigo-600 font-bold tabular-nums">{progress}%</span>
             </div>
             <ProgressBar progress={progress} className="h-1.5" />
           </div>
 
           {/* Next Steps Section */}
-          <div className="space-y-4 flex-1">
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Next Milestones</h4>
-            <div className="space-y-3">
+          <div className="space-y-3 flex-1">
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Next Milestones</h4>
+            <div className="space-y-2.5">
               {visibleMilestones.map((milestone) => (
                 <MilestonePreview
                   key={milestone.id}
@@ -130,7 +130,7 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
                 />
               ))}
               {hiddenCount > 0 && (
-                <p className="text-[10px] text-slate-500 font-bold italic ml-7">
+                <p className="text-[10px] text-slate-400 font-medium italic ml-7">
                   + {hiddenCount} more steps
                 </p>
               )}
@@ -138,17 +138,17 @@ const RoadmapCard = memo(({ roadmap, onDelete, onComplete }) => {
           </div>
         </CardContent>
         
-        <CardFooter className="pt-4 border-t border-white/5 shrink-0">
+        <CardFooter className="pt-4 border-t border-slate-100 shrink-0">
           <div className="flex gap-2 w-full items-center">
             <Link to={`/roadmaps/${roadmap.id}`} className="flex-1 min-w-0">
-              <Button variant="secondary" className="w-full justify-between pr-3 group-hover:bg-slate-700/50 transition-colors h-10">
+              <Button variant="secondary" className="w-full justify-between pr-3 h-10">
                 <span className="truncate">View Path</span>
                 <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
             <button
               onClick={handleDelete}
-              className="p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all"
+              className="p-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
               title="Delete roadmap"
             >
               <Trash2 className="h-4 w-4" />
@@ -170,10 +170,10 @@ const MilestonePreview = memo(({ milestone, onComplete }) => {
       <button
         onClick={handleClick}
         className={cn(
-          "mt-0.5 shrink-0 transition-colors",
+          "mt-0.5 shrink-0 transition-colors cursor-pointer",
           milestone.completed
             ? "text-emerald-500"
-            : "text-slate-600 hover:text-indigo-400"
+            : "text-slate-300 hover:text-indigo-500"
         )}
         disabled={milestone.completed}
       >
@@ -181,7 +181,7 @@ const MilestonePreview = memo(({ milestone, onComplete }) => {
       </button>
       <span className={cn(
         "text-sm break-words line-clamp-1 transition-colors leading-tight flex-1",
-        milestone.completed ? "text-slate-600 line-through" : "text-slate-300 group-hover/item:text-white"
+        milestone.completed ? "text-slate-400 line-through" : "text-slate-600 group-hover/item:text-slate-800"
       )}>
         {milestone.title}
       </span>

@@ -24,21 +24,21 @@ const NavItem = memo(({ item, isActive, isCollapsed, setIsOpen }) => {
       className={cn(
         "group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
         isActive 
-          ? "bg-indigo-600/10 text-indigo-400 font-semibold" 
-          : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+          ? "bg-indigo-50 text-indigo-700 font-semibold" 
+          : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
       )}
     >
       {isActive && (
-        <div className="absolute left-0 w-1 h-6 bg-indigo-500 rounded-r-full" />
+        <div className="absolute left-0 w-1 h-6 bg-indigo-600 rounded-r-full" />
       )}
-      <Icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110", isActive && "text-indigo-400")} />
+      <Icon className={cn("h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110", isActive && "text-indigo-600")} />
       {!isCollapsed && (
-        <span className="whitespace-nowrap">
+        <span className="whitespace-nowrap text-sm">
           {item.name}
         </span>
       )}
       {isCollapsed && (
-        <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity border border-slate-700 whitespace-nowrap z-50">
+        <div className="absolute left-full ml-4 px-2.5 py-1.5 bg-slate-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-lg">
           {item.name}
         </div>
       )}
@@ -68,7 +68,7 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-40 md:hidden"
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden"
             onClick={closeSidebar}
           />
         )}
@@ -77,29 +77,29 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
       {/* Sidebar container */}
       <div
         className={cn(
-          "fixed md:sticky md:top-0 inset-y-0 left-0 z-50 flex flex-col glass border-r border-white/5 h-dvh md:translate-x-0 shrink-0 transition-[width,transform] duration-200 ease-out",
+          "fixed md:sticky md:top-0 inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 h-dvh md:translate-x-0 shrink-0 transition-[width,transform] duration-200 ease-out",
           isCollapsed ? "md:w-20" : "md:w-64",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0 w-72" : "-translate-x-full"
         )}
       >
         {/* Logo Section */}
         <div className="p-6 flex items-center justify-between overflow-hidden whitespace-nowrap">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
               <Compass className="h-6 w-6 text-white" />
             </div>
             {!isCollapsed && (
               <motion.span 
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-xl font-bold text-white tracking-tight"
+                className="text-xl font-bold text-slate-800 tracking-tight"
               >
                 PathForge
               </motion.span>
             )}
           </div>
           <button 
-            className="md:hidden text-slate-400 hover:text-white p-1"
+            className="md:hidden text-slate-400 hover:text-slate-600 p-1"
             onClick={closeSidebar}
           >
             <X className="h-6 w-6" />
@@ -109,15 +109,15 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
         {/* Collapse Toggle (Desktop only) */}
         <button
           onClick={toggleCollapse}
-          className="hidden md:flex absolute -right-3 top-20 h-6 w-6 bg-slate-800 border border-slate-700 rounded-full items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition-all z-50 shadow-xl"
+          className="hidden md:flex absolute -right-3 top-20 h-6 w-6 bg-white border border-slate-200 rounded-full items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-300 transition-all z-50 shadow-md"
         >
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
         
         {/* Nav Items */}
-        <div className="flex-1 px-4 py-4 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <div className="flex-1 px-4 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
           {!isCollapsed && (
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-4 mt-2">
+            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 px-4 mt-2">
               Navigation
             </div>
           )}
@@ -137,11 +137,11 @@ export const Sidebar = memo(({ isOpen, setIsOpen }) => {
           })}
         </div>
 
-        {/* Footer Section - Minimal */}
-        <div className="p-4 border-t border-white/5 mt-auto">
+        {/* Footer Section */}
+        <div className="p-4 border-t border-slate-100 mt-auto">
           {!isCollapsed && (
             <div className="px-3 py-4 text-center">
-              <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">PathForge v1.0</p>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">PathForge v1.0</p>
             </div>
           )}
         </div>

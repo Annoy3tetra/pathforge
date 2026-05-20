@@ -5,30 +5,30 @@ import { cn } from "../../lib/utils";
 const TYPE_CONFIG = {
   video: {
     icon: Video,
-    color: "bg-rose-500/20 text-rose-400 border-rose-500/30",
-    badge: "bg-rose-500/20 text-rose-400",
+    color: "border-rose-200",
+    badge: "bg-rose-50 text-rose-600",
   },
   article: {
     icon: FileText,
-    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    badge: "bg-blue-500/20 text-blue-400",
+    color: "border-blue-200",
+    badge: "bg-blue-50 text-blue-600",
   },
   course: {
     icon: GraduationCap,
-    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    badge: "bg-purple-500/20 text-purple-400",
+    color: "border-violet-200",
+    badge: "bg-violet-50 text-violet-600",
   },
   docs: {
     icon: BookOpen,
-    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    badge: "bg-emerald-500/20 text-emerald-400",
+    color: "border-emerald-200",
+    badge: "bg-emerald-50 text-emerald-600",
   },
 };
 
 const DIFFICULTY_COLORS = {
-  beginner: "text-emerald-400",
-  intermediate: "text-amber-400",
-  advanced: "text-rose-400",
+  beginner: "text-emerald-600",
+  intermediate: "text-amber-600",
+  advanced: "text-rose-600",
 };
 
 export const ResourceCard = memo(function ResourceCard({ resource }) {
@@ -37,42 +37,36 @@ export const ResourceCard = memo(function ResourceCard({ resource }) {
   const unavailable = !resource.url;
   const content = (
     <>
-      <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner", config.badge)}>
+      <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", config.badge)}>
         <Icon className="h-5 w-5" />
       </div>
 
       <div className="flex-1 min-w-0">
         <p className={cn(
-          "text-sm font-bold truncate transition-colors",
-          unavailable ? "text-slate-500 italic" : "text-slate-100 group-hover:text-white"
+          "text-sm font-semibold truncate transition-colors",
+          unavailable ? "text-slate-400 italic" : "text-slate-700 group-hover:text-slate-900"
         )}>
           {resource.title}
         </p>
         <div className="flex items-center gap-2 mt-1">
-          <span className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg", config.badge)}>
+          <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md", config.badge)}>
             {resource.type}
           </span>
           {resource.difficulty && (
-            <span className={cn("text-[10px] font-bold uppercase tracking-widest", DIFFICULTY_COLORS[resource.difficulty] || "text-slate-500")}>
+            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", DIFFICULTY_COLORS[resource.difficulty] || "text-slate-400")}>
               {resource.difficulty}
             </span>
           )}
         </div>
       </div>
 
-      {!unavailable && <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-white shrink-0 transition-colors" />}
+      {!unavailable && <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 shrink-0 transition-colors" />}
     </>
   );
 
   if (unavailable) {
     return (
-      <div
-        className={cn(
-          "flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-950/40 text-slate-500",
-          config.color,
-          "bg-opacity-5"
-        )}
-      >
+      <div className={cn("flex items-center gap-3 p-3 rounded-xl border bg-slate-50 text-slate-400", config.color)}>
         {content}
       </div>
     );
@@ -84,11 +78,11 @@ export const ResourceCard = memo(function ResourceCard({ resource }) {
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "flex items-center gap-3 p-3 rounded-xl border transition-[border-color,background-color] duration-200 group glass hover:border-white/20",
+        "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 group bg-white hover:shadow-sm",
         config.color,
-        "bg-opacity-5"
+        "hover:border-indigo-200"
       )}
-      >
+    >
       {content}
     </a>
   );
@@ -104,7 +98,7 @@ export const ResourceList = memo(function ResourceList({ resources, filter }) {
   if (filtered.length === 0) {
     return (
       <div className="py-4 text-center">
-        <p className="text-xs text-slate-500 font-medium italic">
+        <p className="text-xs text-slate-400 font-medium italic">
           No {filter === "all" ? "" : filter + " "}resources found for this milestone.
         </p>
       </div>

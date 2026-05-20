@@ -8,24 +8,24 @@ export const RoadmapFeedbackBadge = memo(function RoadmapFeedbackBadge({ roadmap
 
   const colorClass = useMemo(() => {
     if (status === "Ahead of Schedule" || status === "Completed") {
-      return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
     }
     if (status === "On Track") {
-      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+      return "bg-blue-50 text-blue-700 border-blue-200";
     }
     if (status === "Slightly Behind") {
-      return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+      return "bg-amber-50 text-amber-700 border-amber-200";
     }
     if (status === "Significantly Behind") {
-      return "bg-rose-500/20 text-rose-400 border-rose-500/30";
+      return "bg-red-50 text-red-700 border-red-200";
     }
-    return "bg-slate-800 text-slate-300 border-slate-700";
+    return "bg-slate-50 text-slate-600 border-slate-200";
   }, [status]);
 
   if (!feedback) return null;
 
   return (
-    <div className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] border shadow-lg shadow-black/20 ${colorClass}`}>
+    <div className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${colorClass}`}>
       <Activity className="mr-1.5 h-3 w-3" />
       {status}
     </div>

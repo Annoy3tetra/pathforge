@@ -1,32 +1,45 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 213 31% 91%;
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 1.2%;
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 216 34% 17%;
-    --radius: 0.75rem;
+    --pf-bg: #f8fafc;
+    --pf-surface: #ffffff;
+    --pf-surface-alt: #f1f5f9;
+    --pf-border: #e2e8f0;
+    --pf-border-light: #f1f5f9;
+    --pf-text: #0f172a;
+    --pf-text-secondary: #475569;
+    --pf-text-muted: #94a3b8;
+    --pf-primary: #6366f1;
+    --pf-primary-light: #818cf8;
+    --pf-primary-bg: #eef2ff;
+    --pf-accent: #8b5cf6;
+    --pf-accent-bg: #f5f3ff;
+    --pf-success: #10b981;
+    --pf-success-bg: #ecfdf5;
+    --pf-warning: #f59e0b;
+    --pf-warning-bg: #fffbeb;
+    --pf-danger: #ef4444;
+    --pf-danger-bg: #fef2f2;
+    --pf-gradient-start: #6366f1;
+    --pf-gradient-mid: #8b5cf6;
+    --pf-gradient-end: #a78bfa;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased;
-    background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+    font-family: var(--font-sans);
+    background: var(--pf-bg);
+    color: var(--pf-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
 
@@ -37,16 +50,34 @@
 
 @layer components {
   .glass {
-    /* Paint budget: keep the premium translucent look without stacking backdrop filters on scroll-heavy cards. */
-    @apply bg-slate-900/80 border border-slate-800/50;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--pf-border);
   }
-  
+
   .glass-dark {
-    @apply bg-slate-950/95 border border-white/5;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--pf-border);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(135deg, var(--pf-gradient-start), var(--pf-gradient-mid), var(--pf-gradient-end));
+  }
+
+  .card-shadow {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+
+  .card-shadow-hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -67,25 +98,35 @@
   to { transform: translateX(100%); }
 }
 
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
 .animate-float {
   will-change: transform;
   animation: float 6s ease-in-out infinite;
 }
 
-/* Custom Scrollbar - Minimal performance impact */
+/* Custom Scrollbar - Minimal & Light */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-950;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-800 rounded-full hover:bg-slate-700;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 
-@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;

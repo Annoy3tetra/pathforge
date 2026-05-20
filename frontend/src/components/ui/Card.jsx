@@ -5,9 +5,8 @@ export const Card = memo(function Card({ children, className = "", animate = fal
   return (
     <div
       className={cn(
-        "glass rounded-2xl overflow-hidden transition-[border-color,background-color,transform] duration-200",
-        // CSS hover avoids a Framer Motion instance on every roadmap/milestone card.
-        animate && "hover:-translate-y-0.5",
+        "bg-white rounded-2xl border border-slate-200/80 card-shadow overflow-hidden transition-all duration-200",
+        animate && "hover:-translate-y-0.5 hover:card-shadow-hover",
         className
       )} 
       {...props}
@@ -27,7 +26,7 @@ export const CardHeader = memo(function CardHeader({ children, className = "", .
 
 export const CardTitle = memo(function CardTitle({ children, className = "", ...props }) {
   return (
-    <h3 className={cn("text-xl font-bold leading-none tracking-tight text-slate-100", className)} {...props}>
+    <h3 className={cn("text-xl font-bold leading-none tracking-tight text-slate-800", className)} {...props}>
       {children}
     </h3>
   );
@@ -35,7 +34,7 @@ export const CardTitle = memo(function CardTitle({ children, className = "", ...
 
 export const CardDescription = memo(function CardDescription({ children, className = "", ...props }) {
   return (
-    <p className={cn("text-sm text-slate-400 mt-2 leading-relaxed", className)} {...props}>
+    <p className={cn("text-sm text-slate-500 mt-2 leading-relaxed", className)} {...props}>
       {children}
     </p>
   );

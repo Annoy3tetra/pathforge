@@ -57,9 +57,9 @@ function LoginPage() {
       title="Welcome back" 
       subtitle="Sign in to your account to continue"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Email address
           </label>
           <Input
@@ -72,7 +72,7 @@ function LoginPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Password
           </label>
           <Input
@@ -88,9 +88,9 @@ function LoginPage() {
           Sign in
         </Button>
         
-        <p className="text-center text-sm text-slate-400 mt-6">
+        <p className="text-center text-sm text-slate-500 mt-6">
           Don't have an account?{" "}
-          <Link to="/register" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
             Sign up
           </Link>
         </p>

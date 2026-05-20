@@ -111,7 +111,7 @@ function RoadmapDetailPage() {
     setAddMilestoneOpen(true);
   }, []);
 
-  // Derived once per roadmap update so stats, charts, and timeline do not each scan milestones.
+  // Derived once per roadmap update
   const { total, completed, progress, totalDays, remainingDays } = useMemo(() => {
     if (!roadmap) return { total: 0, completed: 0, progress: 0, totalDays: 0, remainingDays: 0 };
 
@@ -159,11 +159,11 @@ function RoadmapDetailPage() {
     return (
       <DashboardLayout title="Path Not Found">
         <div className="text-center py-20 flex flex-col items-center">
-          <div className="h-20 w-20 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-            <Target className="h-10 w-10 text-slate-500" />
+          <div className="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+            <Target className="h-10 w-10 text-slate-400" />
           </div>
-          <h2 className="text-2xl font-bold mb-2 text-white">Roadmap not found</h2>
-          <p className="text-slate-400 mb-8">The learning path you're looking for doesn't exist or was removed.</p>
+          <h2 className="text-2xl font-bold mb-2 text-slate-800">Roadmap not found</h2>
+          <p className="text-slate-500 mb-8">The learning path you're looking for doesn't exist or was removed.</p>
           <Link to="/dashboard">
             <Button>Return to Dashboard</Button>
           </Link>
@@ -172,35 +172,37 @@ function RoadmapDetailPage() {
     );
   }
 
+  const textareaClasses = "flex w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all resize-none";
+
   return (
     <DashboardLayout title="Roadmap Details">
       {/* Header Summary */}
       <div className="mb-8">
-        <Link to="/dashboard" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-indigo-400 transition-colors mb-6 group">
+        <Link to="/dashboard" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-indigo-600 transition-colors mb-6 group">
           <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           Back to Dashboard
         </Link>
 
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
           <div className="min-w-0 flex-1">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 mb-4 leading-[1.15] break-words">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-800 mb-4 leading-[1.15] break-words">
               {roadmap.title}
             </h1>
-            <p className="text-base md:text-lg text-slate-400 max-w-4xl leading-relaxed break-words">
+            <p className="text-base md:text-lg text-slate-500 max-w-4xl leading-relaxed break-words">
               {roadmap.description}
             </p>
           </div>
           <div className="flex gap-3 shrink-0 self-start sm:self-auto">
             <button
               onClick={openEditRoadmap}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-colors text-sm font-medium cursor-pointer"
             >
               <Pencil className="h-4 w-4" />
               Edit
             </button>
             <button
               onClick={handleDeleteRoadmap}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors text-sm font-medium cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
               Delete
@@ -220,15 +222,15 @@ function RoadmapDetailPage() {
 
       {/* Progress Insights Card from feedback */}
       {feedback && (
-        <Card className="mb-8 border-indigo-500/20 bg-gradient-to-r from-slate-900 to-indigo-950/20">
+        <Card className="mb-8 border-indigo-100 bg-gradient-to-r from-indigo-50 to-violet-50">
           <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-1">Pace Evaluation</h3>
+              <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-1">Pace Evaluation</h3>
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-xl font-bold text-slate-100">{feedback.status}</span>
-                <span className="text-sm text-slate-400">({feedback.actual_days}d actual vs. {feedback.expected_days}d expected)</span>
+                <span className="text-xl font-bold text-slate-800">{feedback.status}</span>
+                <span className="text-sm text-slate-500">({feedback.actual_days}d actual vs. {feedback.expected_days}d expected)</span>
               </div>
-              <p className="text-sm text-slate-300 mt-2">{feedback.recommendation}</p>
+              <p className="text-sm text-slate-600 mt-2">{feedback.recommendation}</p>
             </div>
           </CardContent>
         </Card>
@@ -236,7 +238,7 @@ function RoadmapDetailPage() {
 
       {/* Productivity Trend Chart */}
       {analytics?.productivity_trend?.length > 0 && (
-        <Card className="mb-10 bg-slate-900/50 border-slate-800/60">
+        <Card className="mb-10">
           <CardContent className="p-5">
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
               Productivity Trend — Expected vs. Actual
@@ -250,7 +252,7 @@ function RoadmapDetailPage() {
 
       {/* Main Progress Bar */}
       <div className="mb-12">
-        <ProgressBar progress={progress} className="h-3 shadow-inner shadow-black/20" />
+        <ProgressBar progress={progress} className="h-3" />
       </div>
 
       <MilestoneTimeline 
@@ -272,7 +274,7 @@ function RoadmapDetailPage() {
       <div className="flex justify-center mt-8">
         <button
           onClick={openAddMilestone}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-colors text-sm font-medium"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 transition-colors text-sm font-medium cursor-pointer"
         >
           <Plus className="h-5 w-5" />
           Add Milestone
@@ -285,16 +287,16 @@ function RoadmapDetailPage() {
       <Modal isOpen={editRoadmapOpen} onClose={() => setEditRoadmapOpen(false)} title="Edit Roadmap">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Title</label>
             <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Roadmap title" />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Description</label>
             <textarea
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}
               rows={3}
-              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              className={textareaClasses}
               placeholder="Roadmap description"
             />
           </div>
@@ -320,21 +322,21 @@ function RoadmapDetailPage() {
       <Modal isOpen={editMilestoneOpen} onClose={() => setEditMilestoneOpen(false)} title="Edit Milestone">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Title</label>
             <Input value={mTitle} onChange={(e) => setMTitle(e.target.value)} placeholder="Milestone title" />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Description</label>
             <textarea
               value={mDesc}
               onChange={(e) => setMDesc(e.target.value)}
               rows={3}
-              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              className={textareaClasses}
               placeholder="Milestone description"
             />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
             <Input type="number" min={1} value={mDays} onChange={(e) => setMDays(Number(e.target.value))} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
@@ -362,21 +364,21 @@ function RoadmapDetailPage() {
       <Modal isOpen={addMilestoneOpen} onClose={() => setAddMilestoneOpen(false)} title="Add Milestone">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Title</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Title</label>
             <Input value={newMTitle} onChange={(e) => setNewMTitle(e.target.value)} placeholder="e.g. Learn React Hooks" />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Description</label>
             <textarea
               value={newMDesc}
               onChange={(e) => setNewMDesc(e.target.value)}
               rows={3}
-              className="flex w-full rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+              className={textareaClasses}
               placeholder="What should be learned in this milestone?"
             />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Estimated Days</label>
             <Input type="number" min={1} value={newMDays} onChange={(e) => setNewMDays(Number(e.target.value))} />
           </div>
           <div className="flex justify-end gap-2 pt-2">

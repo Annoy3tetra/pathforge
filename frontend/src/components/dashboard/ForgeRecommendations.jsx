@@ -30,15 +30,15 @@ export const ForgeRecommendations = memo(function ForgeRecommendations() {
   if (!forgeProfile || (forgeProfile.completion_percent || 0) < 35) {
     return (
       <section className="mb-12">
-        <Card className="border-indigo-500/20 bg-indigo-500/5">
+        <Card className="border-indigo-100 bg-indigo-50/30">
           <CardContent className="p-6 sm:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-3">
+              <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-indigo-500 mb-3">
                 <Brain className="h-4 w-4" />
                 ForgeProfile
               </div>
-              <h2 className="text-2xl font-black text-white mb-2">Make PathForge understand how you learn.</h2>
-              <p className="text-sm text-slate-400 leading-relaxed">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Make PathForge understand how you learn.</h2>
+              <p className="text-sm text-slate-500 leading-relaxed">
                 Complete a short student intelligence profile so roadmaps, projects, resources, and pacing adapt to your goals.
               </p>
             </div>
@@ -60,21 +60,21 @@ export const ForgeRecommendations = memo(function ForgeRecommendations() {
     <section className="mb-12">
       <div className="flex items-center justify-between gap-4 mb-5">
         <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-indigo-400" />
-          <h2 className="text-xl font-bold text-white tracking-tight">ForgeProfile Guidance</h2>
+          <Brain className="h-5 w-5 text-indigo-500" />
+          <h2 className="text-lg font-semibold text-slate-800">ForgeProfile Guidance</h2>
         </div>
-        <Link to="/forge-profile" className="text-xs font-bold text-indigo-300 hover:text-indigo-200">
+        <Link to="/forge-profile" className="text-xs font-semibold text-indigo-500 hover:text-indigo-700">
           Tune profile
         </Link>
       </div>
 
-      <Card className="mb-5 border-indigo-500/15">
+      <Card className="mb-5 border-indigo-100">
         <CardContent className="p-5 grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] gap-5">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
               Student Intelligence
             </p>
-            <p className="text-base text-slate-200 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               {analysis?.personalization_summary || "ForgeProfile is shaping your recommendations from your latest answers."}
             </p>
           </div>
@@ -98,9 +98,9 @@ export const ForgeRecommendations = memo(function ForgeRecommendations() {
 
 const Metric = memo(function Metric({ label, value }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3 text-center">
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">{label}</p>
-      <p className="text-sm font-black text-white capitalize truncate">{value}</p>
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{label}</p>
+      <p className="text-sm font-bold text-slate-800 capitalize truncate">{value}</p>
     </div>
   );
 });
@@ -112,14 +112,14 @@ const RecommendationColumn = memo(function RecommendationColumn({ title, type, i
     <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
-          <Icon className="h-4 w-4 text-indigo-400" />
+          <Icon className="h-4 w-4 text-indigo-500" />
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
           {items.slice(0, 4).map((item) => (
-            <div key={item} className="rounded-xl bg-slate-950/40 border border-slate-800/60 p-3 text-xs font-semibold text-slate-300 leading-relaxed">
+            <div key={item} className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-xs font-medium text-slate-600 leading-relaxed">
               {item}
             </div>
           ))}

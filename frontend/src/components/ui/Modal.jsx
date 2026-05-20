@@ -22,7 +22,7 @@ export function Modal({ isOpen, onClose, title, children, className = "" }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
             onClick={onClose}
           />
           
@@ -33,16 +33,16 @@ export function Modal({ isOpen, onClose, title, children, className = "" }) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={cn(
-              "relative glass-dark rounded-2xl shadow-xl w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[90vh]",
+              "relative bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg mx-auto overflow-hidden flex flex-col max-h-[90vh]",
               className
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <h2 className="text-xl font-bold text-slate-800 tracking-tight">{title}</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>

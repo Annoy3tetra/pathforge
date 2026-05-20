@@ -46,9 +46,9 @@ function RegisterPage() {
       title="Create an account" 
       subtitle="Start your learning journey with PathForge"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Username
           </label>
           <Input
@@ -61,7 +61,7 @@ function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Email address
           </label>
           <Input
@@ -74,7 +74,7 @@ function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Password
           </label>
           <Input
@@ -90,9 +90,9 @@ function RegisterPage() {
           Sign up
         </Button>
         
-        <p className="text-center text-sm text-slate-400 mt-6">
+        <p className="text-center text-sm text-slate-500 mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
             Sign in
           </Link>
         </p>

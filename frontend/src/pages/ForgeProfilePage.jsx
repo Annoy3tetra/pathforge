@@ -145,36 +145,40 @@ function ForgeProfilePage() {
   return (
     <DashboardLayout title="ForgeProfile">
       <section className="mb-8">
-        <Link to="/dashboard" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-indigo-300 mb-5">
+        <Link to="/dashboard" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-indigo-600 mb-5">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Link>
 
-        <Card className="border-indigo-500/20 bg-indigo-500/5">
-          <CardContent className="p-6 sm:p-8">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-3">
-                  <Sparkles className="h-4 w-4" />
-                  Student Intelligence System
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-                  ForgeProfile
-                </h1>
-                <p className="text-slate-300 leading-relaxed">
-                  Teach PathForge how you learn, what motivates you, and where you want to grow. Your roadmaps and recommendations become more specific with every answer.
-                </p>
+        <div className="rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 p-6 sm:p-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/3 translate-x-1/4" />
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 relative z-10">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-indigo-200 mb-3">
+                <Sparkles className="h-4 w-4" />
+                Student Intelligence System
               </div>
-              <div className="w-full lg:w-72">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black uppercase tracking-widest text-slate-500">Profile depth</span>
-                  <span className="text-sm font-black text-indigo-300">{completion}%</span>
-                </div>
-                <ProgressBar progress={completion} />
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
+                ForgeProfile
+              </h1>
+              <p className="text-indigo-100 leading-relaxed">
+                Teach PathForge how you learn, what motivates you, and where you want to grow. Your roadmaps and recommendations become more specific with every answer.
+              </p>
+            </div>
+            <div className="w-full lg:w-72">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-200">Profile depth</span>
+                <span className="text-sm font-bold text-white">{completion}%</span>
+              </div>
+              <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-white h-2.5 rounded-full transition-[width] duration-300 ease-out"
+                  style={{ width: `${completion}%` }}
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-[0.72fr_0.28fr] gap-6">
@@ -183,7 +187,7 @@ function ForgeProfilePage() {
             <StepHeader step={step} />
             <div className="p-6 sm:p-8">
               <CurrentStep form={form} updateField={updateField} toggleArrayValue={toggleArrayValue} />
-              <div className="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-slate-800">
+              <div className="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-slate-100">
                 <Button variant="secondary" onClick={previous} disabled={step === 0 || saveMutation.isPending}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Previous
@@ -209,24 +213,24 @@ function ForgeProfilePage() {
 
 const StepHeader = memo(function StepHeader({ step }) {
   return (
-    <div className="grid grid-cols-4 border-b border-slate-800">
+    <div className="grid grid-cols-4 border-b border-slate-100">
       {steps.map((item, index) => {
         const Icon = item.icon;
         const active = index === step;
         const done = index < step;
 
         return (
-          <div key={item.title} className={cn("p-4 sm:p-5 border-r border-slate-800 last:border-r-0", active && "bg-indigo-500/5")}>
+          <div key={item.title} className={cn("p-4 sm:p-5 border-r border-slate-100 last:border-r-0", active && "bg-indigo-50/50")}>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <div className={cn(
                 "h-8 w-8 rounded-xl flex items-center justify-center border",
-                done ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : active ? "bg-indigo-500/10 text-indigo-300 border-indigo-500/20" : "bg-slate-950/40 text-slate-500 border-slate-800"
+                done ? "bg-emerald-50 text-emerald-600 border-emerald-200" : active ? "bg-indigo-50 text-indigo-600 border-indigo-200" : "bg-slate-50 text-slate-400 border-slate-200"
               )}>
                 {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">Step {index + 1}</p>
-                <p className={cn("text-xs sm:text-sm font-black", active ? "text-white" : "text-slate-500")}>{item.title}</p>
+                <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">Step {index + 1}</p>
+                <p className={cn("text-xs sm:text-sm font-semibold", active ? "text-slate-800" : "text-slate-400")}>{item.title}</p>
               </div>
             </div>
           </div>
@@ -306,7 +310,7 @@ function PersonalizationStep({ form, updateField, toggleArrayValue }) {
       ]} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Target Timeline">
-          <select value={form.target_timeline || "3-months"} onChange={(e) => updateField("target_timeline", e.target.value)} className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900/70 px-4 text-sm text-slate-100">
+          <select value={form.target_timeline || "3-months"} onChange={(e) => updateField("target_timeline", e.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all">
             <option value="1-month">1 month</option>
             <option value="3-months">3 months</option>
             <option value="6-months">6 months</option>
@@ -315,7 +319,7 @@ function PersonalizationStep({ form, updateField, toggleArrayValue }) {
           </select>
         </Field>
         <Field label="Resource Format">
-          <select value={form.preferred_resource_format || "mixed"} onChange={(e) => updateField("preferred_resource_format", e.target.value)} className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900/70 px-4 text-sm text-slate-100">
+          <select value={form.preferred_resource_format || "mixed"} onChange={(e) => updateField("preferred_resource_format", e.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all">
             <option value="mixed">Mixed</option>
             <option value="video">Video</option>
             <option value="article">Article</option>
@@ -335,12 +339,12 @@ const stepComponents = [DirectionStep, LearningStep, MotivationStep, Personaliza
 const SectionIntro = memo(function SectionIntro({ icon: Icon, title, text }) {
   return (
     <div className="flex items-start gap-4">
-      <div className="h-11 w-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
+      <div className="h-11 w-11 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <h2 className="text-2xl font-black text-white mb-1">{title}</h2>
-        <p className="text-sm text-slate-400 leading-relaxed">{text}</p>
+        <h2 className="text-2xl font-bold text-slate-800 mb-1">{title}</h2>
+        <p className="text-sm text-slate-500 leading-relaxed">{text}</p>
       </div>
     </div>
   );
@@ -349,7 +353,7 @@ const SectionIntro = memo(function SectionIntro({ icon: Icon, title, text }) {
 const Field = memo(function Field({ label, children }) {
   return (
     <label className="block">
-      <span className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{label}</span>
+      <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">{label}</span>
       {children}
     </label>
   );
@@ -358,7 +362,7 @@ const Field = memo(function Field({ label, children }) {
 const ChipGroup = memo(function ChipGroup({ label, options, values, onToggle }) {
   return (
     <div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">{label}</p>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const selected = values.includes(option);
@@ -368,10 +372,10 @@ const ChipGroup = memo(function ChipGroup({ label, options, values, onToggle }) 
               type="button"
               onClick={() => onToggle(option)}
               className={cn(
-                "px-3 py-2 rounded-xl border text-xs font-bold transition-colors",
+                "px-3 py-2 rounded-xl border text-xs font-semibold transition-colors cursor-pointer",
                 selected
-                  ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-200"
-                  : "bg-slate-950/40 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                  ? "bg-indigo-50 border-indigo-200 text-indigo-700"
+                  : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300"
               )}
             >
               {option}
@@ -386,7 +390,7 @@ const ChipGroup = memo(function ChipGroup({ label, options, values, onToggle }) 
 const SelectCards = memo(function SelectCards({ label, options, value, onChange }) {
   return (
     <div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3">{label}</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {options.map(([id, text]) => (
           <button
@@ -394,13 +398,13 @@ const SelectCards = memo(function SelectCards({ label, options, value, onChange 
             type="button"
             onClick={() => onChange(id)}
             className={cn(
-              "min-h-20 rounded-2xl border p-4 text-left transition-colors",
+              "min-h-20 rounded-2xl border p-4 text-left transition-all cursor-pointer",
               value === id
-                ? "bg-indigo-500/15 border-indigo-500/40 text-white"
-                : "bg-slate-950/40 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                ? "bg-indigo-50 border-indigo-200 text-indigo-800 shadow-sm"
+                : "bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300"
             )}
           >
-            <span className="block text-sm font-black capitalize mb-1">{id.replace("-", " ")}</span>
+            <span className="block text-sm font-bold capitalize mb-1">{id.replace("-", " ")}</span>
             <span className="text-xs leading-relaxed">{text}</span>
           </button>
         ))}
@@ -413,8 +417,8 @@ const SliderField = memo(function SliderField({ label, value, min, max, suffix, 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
-        <p className="text-sm font-black text-indigo-300">{value}{suffix}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+        <p className="text-sm font-bold text-indigo-600">{value}{suffix}</p>
       </div>
       <input
         type="range"
@@ -440,10 +444,10 @@ const ForgeInsightPanel = memo(function ForgeInsightPanel({ recommendations, isL
       <Card>
         <CardContent className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Lightbulb className="h-5 w-5 text-amber-300" />
-            <h3 className="text-lg font-black text-white">Live Guidance</h3>
+            <Lightbulb className="h-5 w-5 text-amber-500" />
+            <h3 className="text-lg font-bold text-slate-800">Live Guidance</h3>
           </div>
-          <p className="text-sm text-slate-400 leading-relaxed mb-5">
+          <p className="text-sm text-slate-500 leading-relaxed mb-5">
             {analysis?.personalization_summary || "Your recommendations will sharpen as ForgeProfile gets more context."}
           </p>
           <div className="grid grid-cols-3 gap-2">
@@ -457,12 +461,12 @@ const ForgeInsightPanel = memo(function ForgeInsightPanel({ recommendations, isL
       <Card>
         <CardContent className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <FolderKanban className="h-5 w-5 text-indigo-300" />
-            <h3 className="text-lg font-black text-white">Next Best Moves</h3>
+            <FolderKanban className="h-5 w-5 text-indigo-500" />
+            <h3 className="text-lg font-bold text-slate-800">Next Best Moves</h3>
           </div>
           <div className="space-y-3">
             {(recommendations?.recommended_next_steps || []).slice(0, 5).map((item) => (
-              <div key={item} className="rounded-xl border border-slate-800 bg-slate-950/40 p-3 text-xs font-semibold text-slate-300 leading-relaxed">
+              <div key={item} className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs font-medium text-slate-600 leading-relaxed">
                 {item}
               </div>
             ))}
@@ -475,10 +479,10 @@ const ForgeInsightPanel = memo(function ForgeInsightPanel({ recommendations, isL
 
 const MiniStat = memo(function MiniStat({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3 text-center">
-      <Icon className="h-4 w-4 text-indigo-300 mx-auto mb-2" />
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-600 mb-1">{label}</p>
-      <p className="text-xs font-black text-white capitalize truncate">{value}</p>
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+      <Icon className="h-4 w-4 text-indigo-500 mx-auto mb-2" />
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{label}</p>
+      <p className="text-xs font-bold text-slate-800 capitalize truncate">{value}</p>
     </div>
   );
 });

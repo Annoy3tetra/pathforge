@@ -34,9 +34,9 @@ function MyRoadmapsPage() {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-7 w-24 rounded-full" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((item) => (
-            <Card key={item} className="h-80 shadow-none bg-white/5 border-white/5">
+            <Card key={item} className="h-80">
               <CardHeader>
                 <Skeleton className="h-6 w-3/4 mb-3" />
                 <Skeleton className="h-4 w-full" />
@@ -56,12 +56,12 @@ function MyRoadmapsPage() {
     <DashboardLayout title="My Roadmaps">
       <section className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center">
             <Layout className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight">Saved Learning Paths</h1>
-            <p className="text-sm text-slate-400">
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Saved Learning Paths</h1>
+            <p className="text-sm text-slate-500">
               Review, continue, or clean up the roadmaps you have generated.
             </p>
           </div>
