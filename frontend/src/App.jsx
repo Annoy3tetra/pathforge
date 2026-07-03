@@ -21,6 +21,8 @@ const RoadmapDetailPage = lazy(() => import("./pages/RoadmapDetailPage"));
 const MyRoadmapsPage = lazy(() => import("./pages/MyRoadmapsPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ForgeProfilePage = lazy(() => import("./pages/ForgeProfilePage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +59,8 @@ function AnimatedRoutes() {
         <Routes location={location}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           <Route
             path="/dashboard"

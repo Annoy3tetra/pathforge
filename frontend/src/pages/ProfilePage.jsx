@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Skeleton } from "../components/ui/Skeleton";
 
-import { useProfile, useCreateProfile, useUpdateProfile, useUploadProfileImage } from "../hooks/useProfile";
+import { useProfile, useCreateProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBanner } from "../hooks/useProfile";
 import { ProfileHero } from "../components/profile/ProfileHero";
 import { 
   IdentitySection, 
@@ -60,24 +60,27 @@ function ProfilePage() {
   const createMutation = useCreateProfile();
   const updateMutation = useUpdateProfile();
   const uploadImageMutation = useUploadProfileImage();
+  const uploadBannerMutation = useUploadProfileBanner();
 
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [selectedBannerFile, setSelectedBannerFile] = useState(null);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState(null);
 
   const isNew = isError || !profile;
   const profileForm = useMemo(() => profileToForm(profile), [profile]);
   const effectiveIsEditing = isNew || isEditing;
   const activeForm = effectiveIsEditing ? form : profileForm;
-  const saving = createMutation.isPending || updateMutation.isPending || uploadImageMutation.isPending;
+  const saving = createMutation.isPending || updateMutation.isPending || uploadImageMutation.isPending || uploadBannerMutation.isPending;
 
   const handleChange = useCallback((field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   }, []);
 
-  const handleImageSelect = useCallback((e) => {
-    const file = e.target.files[0];
+  const handleImageSelect = useCallback((fileOrEvent) => {
+    const file = fileOrEvent instanceof File ? fileOrEvent : fileOrEvent?.target?.files?.[0];
     if (file) {
       setSelectedImageFile(file);
       const url = URL.createObjectURL(file);
@@ -85,11 +88,21 @@ function ProfilePage() {
     }
   }, []);
 
+  const handleBannerSelect = useCallback((fileOrEvent) => {
+    const file = fileOrEvent instanceof File ? fileOrEvent : fileOrEvent?.target?.files?.[0];
+    if (file) {
+      setSelectedBannerFile(file);
+      const url = URL.createObjectURL(file);
+      setBannerPreviewUrl(url);
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      if (bannerPreviewUrl) URL.revokeObjectURL(bannerPreviewUrl);
     };
-  }, [imagePreviewUrl]);
+  }, [imagePreviewUrl, bannerPreviewUrl]);
 
   const handleSave = useCallback(async () => {
     const payload = {};
@@ -104,6 +117,10 @@ function ProfilePage() {
         const uploadedUrl = await uploadImageMutation.mutateAsync(selectedImageFile);
         payload.profile_image = uploadedUrl;
       }
+      if (selectedBannerFile) {
+        const uploadedBannerUrl = await uploadBannerMutation.mutateAsync(selectedBannerFile);
+        payload.banner_image = uploadedBannerUrl;
+      }
       if (isNew) {
         await createMutation.mutateAsync(payload);
       } else {
@@ -111,8 +128,9 @@ function ProfilePage() {
       }
       setIsEditing(false);
       setSelectedImageFile(null);
+      setSelectedBannerFile(null);
     } catch { /* toast handled by hook */ }
-  }, [createMutation, form, isNew, selectedImageFile, updateMutation, uploadImageMutation]);
+  }, [createMutation, form, isNew, selectedImageFile, selectedBannerFile, updateMutation, uploadImageMutation, uploadBannerMutation]);
 
   const startEditing = useCallback((nextValue) => {
     if (typeof nextValue === "function") {
@@ -148,11 +166,15 @@ function ProfilePage() {
         selectedImageFile={selectedImageFile}
         imagePreviewUrl={imagePreviewUrl}
         handleImageSelect={handleImageSelect}
+        selectedBannerFile={selectedBannerFile}
+        bannerPreviewUrl={bannerPreviewUrl}
+        handleBannerSelect={handleBannerSelect}
         handleSave={handleSave}
         setIsEditing={startEditing}
         setForm={setForm}
         profile={profileForm}
         setImagePreviewUrl={setImagePreviewUrl}
+        setBannerPreviewUrl={setBannerPreviewUrl}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
