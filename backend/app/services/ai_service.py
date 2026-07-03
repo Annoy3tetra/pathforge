@@ -318,8 +318,9 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
 
         except (json.JSONDecodeError, AIGenerationError) as e:
             last_error = e
+            detail_str = f" | Detail: {e.detail}" if isinstance(e, AIGenerationError) and e.detail else ""
             logger.warning(
-                f"AI generation attempt {attempt} failed: {e}"
+                f"AI generation attempt {attempt} failed: {e}{detail_str}"
             )
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY)
@@ -337,8 +338,9 @@ def generate_roadmap(goal: str, profile: dict = None) -> dict:
 
     # All retries exhausted
     error_msg = f"AI generation failed after {MAX_RETRIES} attempts"
-    logger.error(f"{error_msg}. Last error: {last_error}")
+    last_error_detail = f" | Detail: {last_error.detail}" if isinstance(last_error, AIGenerationError) and last_error.detail else ""
+    logger.error(f"{error_msg}. Last error: {last_error}{last_error_detail}")
     raise AIGenerationError(
         error_msg,
-        detail=str(last_error) if last_error else None
+        detail=f"{last_error}{last_error_detail}"
     )
