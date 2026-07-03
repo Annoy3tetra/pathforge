@@ -28,7 +28,8 @@ class User(Base):
 
     roadmaps = relationship(
         "Roadmap",
-        backref="owner"
+        backref="owner",
+        cascade="all, delete"
     )
 
     profile = relationship(

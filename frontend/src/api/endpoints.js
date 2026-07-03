@@ -5,6 +5,7 @@ export const ENDPOINTS = {
     ME: "/auth/me",
     FORGOT_PASSWORD: "/auth/forgot-password",
     RESET_PASSWORD: "/auth/reset-password",
+    DELETE_ACCOUNT: "/auth/account",
   },
   PROFILE: {
     BASE: "/profile",

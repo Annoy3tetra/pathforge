@@ -61,18 +61,18 @@ export const Navbar = memo(({ title, onMenuClick }) => {
           className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-all group cursor-pointer"
         >
           <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 p-[2px] shadow-sm">
-            <div className="h-full w-full rounded-full bg-white flex items-center justify-center text-indigo-600 overflow-hidden">
-              {profile?.profile_image ? (
-                <img 
-                  src={profile.profile_image.startsWith("http") ? profile.profile_image : `${import.meta.env.VITE_API_URL}${profile.profile_image}`} 
-                  alt="Profile" 
-                  className="h-full w-full object-cover" 
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <User className="h-5 w-5" />
-              )}
+            <div className="h-full w-full rounded-full bg-slate-100 overflow-hidden">
+              <img 
+                src={
+                  profile?.profile_image 
+                    ? (profile.profile_image.startsWith("http") ? profile.profile_image : `${import.meta.env.VITE_API_URL}${profile.profile_image}`)
+                    : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2310b981'/><stop offset='100%25' stop-color='%23059669'/></linearGradient></defs><rect width='100' height='100' fill='url(%23g)'/><circle cx='50' cy='40' r='20' fill='%23ffffff' opacity='0.9'/><path d='M20,80 C20,60 80,60 80,80' fill='%23ffffff' opacity='0.9'/></svg>"
+                } 
+                alt="Profile" 
+                className="h-full w-full object-cover block object-center" 
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
           <div className="hidden sm:block text-left mr-1">

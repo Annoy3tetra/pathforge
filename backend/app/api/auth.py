@@ -171,3 +171,15 @@ def reset_password(
     db.commit()
 
     return {"message": "Password has been reset successfully."}
+
+
+from app.api.deps import get_current_user
+
+@router.delete("/account")
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Account deleted successfully."}
