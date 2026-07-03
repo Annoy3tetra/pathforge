@@ -16,6 +16,8 @@ if cors_origins_raw:
 else:
     origins = ["http://localhost:5173"]
 
+print("ALLOWED CORS ORIGINS:", origins, flush=True)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
