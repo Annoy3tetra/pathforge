@@ -1,33 +1,66 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  /* Overriding default Tailwind colors to map to the new Emerald & Copper Warm Stone Palette */
+  --color-indigo-50: #f0fdf4; /* Light Minty Green */
+  --color-indigo-100: #dcfce7;
+  --color-indigo-200: #bbf7d0;
+  --color-indigo-500: #10b981; /* Emerald */
+  --color-indigo-600: #059669;
+  --color-indigo-700: #047857;
+  --color-indigo-800: #065f46;
+  --color-indigo-900: #064e3b;
+  
+  --color-violet-50: #fffbeb; /* Warm Amber / Gold */
+  --color-violet-100: #fef3c7;
+  --color-violet-200: #fde68a;
+  --color-violet-500: #f59e0b; /* Amber */
+  --color-violet-600: #d97706;
+  --color-violet-700: #b45309;
+  --color-violet-800: #92400e;
+  --color-violet-900: #78350f;
+  
+  --color-slate-50: #fafaf9; /* Stone (Warm Minimalist Gray) */
+  --color-slate-100: #f5f5f4;
+  --color-slate-200: #e7e5e4;
+  --color-slate-300: #d6d3d1;
+  --color-slate-400: #a8a29e;
+  --color-slate-500: #78716c;
+  --color-slate-600: #57534e;
+  --color-slate-700: #44403c;
+  --color-slate-800: #292524;
+  --color-slate-900: #1c1917;
+  --color-slate-950: #0c0a09;
 }
 
 @layer base {
   :root {
-    --pf-bg: #f8fafc;
+    --pf-bg: #fafaf9; /* Stone-50 */
     --pf-surface: #ffffff;
-    --pf-surface-alt: #f1f5f9;
-    --pf-border: #e2e8f0;
-    --pf-border-light: #f1f5f9;
-    --pf-text: #0f172a;
-    --pf-text-secondary: #475569;
-    --pf-text-muted: #94a3b8;
-    --pf-primary: #6366f1;
-    --pf-primary-light: #818cf8;
-    --pf-primary-bg: #eef2ff;
-    --pf-accent: #8b5cf6;
-    --pf-accent-bg: #f5f3ff;
+    --pf-surface-alt: #f5f5f4; /* Stone-100 */
+    --pf-border: #e7e5e4; /* Stone-200 */
+    --pf-border-light: #f5f5f4;
+    --pf-text: #1c1917; /* Stone-900 */
+    --pf-text-secondary: #57534e; /* Stone-600 */
+    --pf-text-muted: #a8a29e; /* Stone-400 */
+    --pf-primary: #059669; /* Emerald-600 */
+    --pf-primary-light: #10b981; /* Emerald-500 */
+    --pf-primary-bg: #f0fdf4; /* Emerald-50 */
+    --pf-accent: #d97706; /* Amber-600 */
+    --pf-accent-bg: #fffbeb; /* Amber-50 */
     --pf-success: #10b981;
     --pf-success-bg: #ecfdf5;
     --pf-warning: #f59e0b;
     --pf-warning-bg: #fffbeb;
     --pf-danger: #ef4444;
     --pf-danger-bg: #fef2f2;
-    --pf-gradient-start: #6366f1;
-    --pf-gradient-mid: #8b5cf6;
-    --pf-gradient-end: #a78bfa;
+    --pf-gradient-start: #059669; /* Deep Emerald */
+    --pf-gradient-mid: #10b981;
+    --pf-gradient-end: #f59e0b; /* Amber */
   }
 
   html {
@@ -41,6 +74,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   * {

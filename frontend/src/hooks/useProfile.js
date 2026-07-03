@@ -80,3 +80,17 @@ export function useUploadProfileImage() {
     },
   });
 }
+
+export function useUploadProfileBanner() {
+  return useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await API.post(ENDPOINTS.PROFILE.BANNER, formData);
+      return data.url;
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.detail || "Failed to upload banner");
+    },
+  });
+}

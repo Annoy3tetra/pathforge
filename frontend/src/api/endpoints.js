@@ -3,11 +3,14 @@ export const ENDPOINTS = {
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
     ME: "/auth/me",
+    FORGOT_PASSWORD: "/auth/forgot-password",
+    RESET_PASSWORD: "/auth/reset-password",
   },
   PROFILE: {
     BASE: "/profile",
     ME: "/profile/me",
     IMAGE: "/profile/image",
+    BANNER: "/profile/banner",
     INSIGHTS: "/profile/insights",
   },
   FORGE_PROFILE: {

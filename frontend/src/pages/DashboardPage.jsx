@@ -322,8 +322,19 @@ function QuickActionCard({ icon: Icon, title, description, color, to }) {
     amber: "bg-amber-50 text-amber-600 group-hover:bg-amber-100",
   };
 
+  const handleClick = (e) => {
+    if (to.startsWith("#") || to.includes("#")) {
+      const hash = to.split("#")[1];
+      const element = document.getElementById(hash);
+      if (element) {
+        e.preventDefault();
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
-    <Link to={to} className="group">
+    <Link to={to} onClick={handleClick} className="group">
       <Card animate className="h-full">
         <CardContent className="p-5">
           <div className={`h-11 w-11 rounded-xl ${colorMap[color]} flex items-center justify-center mb-4 transition-colors`}>

@@ -95,7 +95,7 @@ export const ProfileHero = memo(function ProfileHero({
       <div className="px-4 sm:px-12 relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mt-6">
         <div className="relative group shrink-0 -mt-16 sm:-mt-20 md:-mt-24">
           <div className={cn(
-            "h-32 w-32 sm:h-40 sm:w-40 rounded-[2rem] border-[6px] border-slate-50 overflow-hidden shadow-xl relative transition-transform duration-500 group-hover:scale-105",
+            "h-32 w-32 sm:h-40 sm:w-40 rounded-full border-[6px] border-white overflow-hidden shadow-2xl relative transition-transform duration-500 group-hover:scale-102 bg-white",
             !form.profile_image && !imagePreviewUrl && "bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white"
           )}>
             {imageSrc ? (
@@ -159,6 +159,16 @@ export const ProfileHero = memo(function ProfileHero({
           )}
         </div>
       </div>
+
+      {cropModalOpen && (
+        <ImageCropModal
+          isOpen={cropModalOpen}
+          onClose={() => setCropModalOpen(false)}
+          imageFile={selectedFile}
+          aspectRatio={cropType === "avatar" ? 1 : 3}
+          onCropComplete={onCropConfirm}
+        />
+      )}
     </section>
   );
 });
