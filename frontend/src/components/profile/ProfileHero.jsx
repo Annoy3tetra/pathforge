@@ -1,7 +1,8 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState, useCallback } from "react";
 import { Camera, Target, GraduationCap, Pencil, Save, X } from "lucide-react";
 import { Button } from "../ui/Button";
 import { cn } from "../../lib/utils";
+import { ImageCropModal } from "./ImageCropModal";
 
 export const ProfileHero = memo(function ProfileHero({
   form, 
@@ -10,17 +11,26 @@ export const ProfileHero = memo(function ProfileHero({
   saving, 
   selectedImageFile, 
   imagePreviewUrl, 
-  handleImageSelect, 
+  handleImageSelect,
+  selectedBannerFile,
+  bannerPreviewUrl,
+  handleBannerSelect,
   handleSave, 
   setIsEditing, 
   setForm, 
   profile,
-  setImagePreviewUrl
+  setImagePreviewUrl,
+  setBannerPreviewUrl
 }) {
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropType, setCropType] = useState("avatar"); // "avatar" or "banner"
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const initials = useMemo(
     () => (form.display_name || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
     [form.display_name]
   );
+  
   const imageSrc = imagePreviewUrl || (
     form.profile_image
       ? form.profile_image.startsWith("http")
@@ -29,15 +39,57 @@ export const ProfileHero = memo(function ProfileHero({
       : null
   );
 
+  const bannerSrc = bannerPreviewUrl || (
+    form.banner_image
+      ? form.banner_image.startsWith("http")
+        ? form.banner_image
+        : `${import.meta.env.VITE_API_URL}${form.banner_image}`
+      : "/profile_banner.png"
+  );
+
+  const onAvatarFileChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setCropType("avatar");
+      setCropModalOpen(true);
+    }
+  }, []);
+
+  const onBannerFileChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setCropType("banner");
+      setCropModalOpen(true);
+    }
+  }, []);
+
+  const onCropConfirm = useCallback((croppedFile) => {
+    setCropModalOpen(false);
+    if (cropType === "avatar") {
+      handleImageSelect(croppedFile);
+    } else {
+      handleBannerSelect(croppedFile);
+    }
+  }, [cropType, handleImageSelect, handleBannerSelect]);
+
   return (
     <section className="relative mb-12">
-      <div className="h-48 w-full rounded-3xl overflow-hidden relative shadow-md">
+      <div className="h-48 w-full rounded-3xl overflow-hidden relative shadow-md group/banner">
         <img 
-          src="/profile_banner.png" 
+          src={bannerSrc} 
           alt="Profile Banner" 
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-indigo-900/10 mix-blend-overlay" />
+        {isEditing && (
+          <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 cursor-pointer opacity-0 group-hover/banner:opacity-100 transition-opacity z-20">
+            <Camera className="h-8 w-8 text-white mb-1" />
+            <span className="text-xs font-bold text-white uppercase tracking-widest">Change Banner</span>
+            <input type="file" accept="image/*" className="hidden" onChange={onBannerFileChange} />
+          </label>
+        )}
       </div>
       
       <div className="px-4 sm:px-12 relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mt-6">
@@ -62,11 +114,11 @@ export const ProfileHero = memo(function ProfileHero({
                 <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
                   <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-white mb-1" />
                   <span className="text-[8px] sm:text-[10px] font-bold text-white uppercase tracking-widest">Change Photo</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+                  <input type="file" accept="image/*" className="hidden" onChange={onAvatarFileChange} />
                 </label>
               )}
           </div>
-          {selectedImageFile && (
+          {(selectedImageFile || selectedBannerFile) && (
             <div className="absolute -top-1 -right-1 h-6 w-6 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg animate-bounce">
               <CheckCircleSmall size={12} className="text-white" />
             </div>

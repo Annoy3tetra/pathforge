@@ -6,6 +6,7 @@ class ProfileCreate(BaseModel):
     display_name: Optional[str] = None
     bio: Optional[str] = None
     profile_image: Optional[str] = None
+    banner_image: Optional[str] = None
 
     education_level: Optional[str] = None
     college_name: Optional[str] = None
@@ -74,6 +75,7 @@ class ProfileResponse(BaseModel):
     display_name: Optional[str]
     bio: Optional[str]
     profile_image: Optional[str]
+    banner_image: Optional[str] = None
 
     education_level: Optional[str]
     college_name: Optional[str]

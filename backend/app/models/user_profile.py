@@ -27,6 +27,7 @@ class UserProfile(Base):
     display_name = Column(String, nullable=True)
     bio = Column(String, nullable=True)
     profile_image = Column(String, nullable=True)
+    banner_image = Column(String, nullable=True)
 
     # Education
     education_level = Column(String, nullable=True)

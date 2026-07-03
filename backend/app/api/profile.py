@@ -60,6 +60,41 @@ async def upload_profile_image(
         
     return {"url": url_path}
 
+
+@router.post("/banner")
+async def upload_profile_banner(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Validate file type
+    if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WebP images are allowed.")
+    
+    # Read file content for size validation (10MB limit for banners)
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:  # 10MB
+        raise HTTPException(status_code=400, detail="Banner must be smaller than 10MB.")
+    
+    # Generate unique filename
+    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    filename = f"banner_{uuid.uuid4().hex}.{ext}"
+    file_path = os.path.join("uploads", "profile_images", filename)
+    
+    # Save file
+    with open(file_path, "wb") as f:
+        f.write(content)
+        
+    url_path = f"/uploads/profile_images/{filename}"
+    
+    # Update profile if it exists
+    profile = get_profile_by_user_id(db, current_user.id)
+    if profile:
+        profile.banner_image = url_path
+        db.commit()
+        
+    return {"url": url_path}
+
 @router.get("/me")
 def get_my_profile(
     db: Session = Depends(get_db),
