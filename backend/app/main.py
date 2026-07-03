@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,9 +10,11 @@ from app.api.forge_profile import recommendation_router
 
 app = FastAPI(title="PathForge API")
 
-origins = [
-    "http://localhost:5173",
-]
+cors_origins_raw = os.getenv("CORS_ORIGINS")
+if cors_origins_raw:
+    origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
+else:
+    origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import os
 from fastapi.staticfiles import StaticFiles
 
 # Ensure upload directory exists
