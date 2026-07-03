@@ -10,13 +10,14 @@ export const profileKeys = {
 /**
  * Fetch the current user's profile.
  */
-export function useProfile() {
+export function useProfile(options = {}) {
   return useQuery({
     queryKey: profileKeys.profile,
     queryFn: async () => {
       const { data } = await API.get(ENDPOINTS.PROFILE.ME);
       return data; // null when no profile exists
     },
+    ...options,
   });
 }
 

@@ -31,13 +31,17 @@ export const ProfileHero = memo(function ProfileHero({
 
   return (
     <section className="relative mb-12">
-      <div className="h-48 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 rounded-3xl overflow-hidden relative">
-        <div className="absolute inset-0 bg-white/10" />
-        <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -translate-y-1/3 translate-x-1/4" />
+      <div className="h-48 w-full rounded-3xl overflow-hidden relative shadow-md">
+        <img 
+          src="/profile_banner.png" 
+          alt="Profile Banner" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-indigo-900/10 mix-blend-overlay" />
       </div>
       
-      <div className="px-4 sm:px-12 -mt-20 relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
-        <div className="relative group shrink-0">
+      <div className="px-4 sm:px-12 relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mt-6">
+        <div className="relative group shrink-0 -mt-16 sm:-mt-20 md:-mt-24">
           <div className={cn(
             "h-32 w-32 sm:h-40 sm:w-40 rounded-[2rem] border-[6px] border-slate-50 overflow-hidden shadow-xl relative transition-transform duration-500 group-hover:scale-105",
             !form.profile_image && !imagePreviewUrl && "bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white"
@@ -84,7 +88,7 @@ export const ProfileHero = memo(function ProfileHero({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-4 md:mt-0 md:mb-4 shrink-0 justify-center md:justify-end w-full md:w-auto">
+        <div className="flex flex-wrap gap-3 mt-4 md:mt-3 shrink-0 justify-center md:justify-end w-full md:w-auto">
           {isEditing ? (
             <>
               {!isNew && (
